@@ -15,7 +15,7 @@ class MenuState:
 
     def handle_input(self, key):
         if key == terminal.TK_ESCAPE:
-            game.exit()
+            game.end_game()
         else:
             self.lst.handle_input(key)
 
@@ -28,7 +28,7 @@ class MenuState:
                 game.start_new_game()
                 game.show_game()
             elif item.label == "Quit Game":
-                game.exit()
+                game.end_game()
 
     def logic(self):
         pass

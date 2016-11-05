@@ -1,4 +1,3 @@
-import time
 from bearlibterminal import terminal
 from goldminer.MenuState import MenuState
 from goldminer.PlayingState import PlayingState
@@ -32,7 +31,7 @@ def show_game():
     state = states['game']
 
 
-def load_previus_game():
+def load_previous_game():
     pass
 
 
@@ -40,7 +39,7 @@ def start_new_game():
     states['game'] = PlayingState()
 
 
-def exit():
+def end_game():
     global running
     running = False
 
@@ -58,17 +57,6 @@ def start():
             state.render()
             key = terminal.read()
             state.handle_input(key)
-
-        # non blocking smaple:
-        # sleep_time = 1.0 / 60
-        # while running:
-        #     if terminal.has_input():
-        #         key = terminal.read()
-        #         state.handle_input(key)
-        #     state.logic()
-        #     state.render()
-        #
-        #     time.sleep(sleep_time)
 
     finally:
         print("Closing...")
