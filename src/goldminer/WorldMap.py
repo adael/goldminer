@@ -5,9 +5,10 @@ from goldminer.Rect import Rect
 floor_colors = ["darkest green", "dark green", "dark gray"]
 
 class WorldMap:
-    def __init__(self, w, h):
+    def __init__(self, w, h, history):
         self.w = w
         self.h = h
+        self.history = history
         self.rect = Rect(0, 0, w, h)
         self.viewport = Rect(0, 0, w, h)
         self.tiles = [[Tile() for _ in range(self.h)] for _ in range(self.w)]

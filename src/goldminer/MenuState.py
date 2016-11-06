@@ -1,7 +1,7 @@
 from goldminer import game
 from bearlibterminal import terminal
 from goldminer.controls import SelectBox, SelectItem
-
+from goldminer import draw
 
 class MenuState:
 
@@ -36,9 +36,11 @@ class MenuState:
     def render(self):
         terminal.clear()
 
+        caption = ".*{Gold Miner}*."
+
         terminal.color("yellow")
-        terminal.print_(10, 10, ".*{Gold Miners}*.")
-        terminal.print_(10, 11, "=================")
+        terminal.print_(10, 10, caption)
+        draw.double_line(10, 11, len(caption))
 
         self.lst.render()
         terminal.refresh()

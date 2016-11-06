@@ -2,13 +2,7 @@ from bearlibterminal import terminal
 from goldminer.MenuState import MenuState
 from goldminer.PlayingState import PlayingState
 
-# size of window
-SCREEN_WIDTH = 120
-SCREEN_HEIGHT = 50
 
-# size of map
-MAP_WIDTH = 80
-MAP_HEIGHT = 43
 
 running = True
 state = None
@@ -47,7 +41,7 @@ def end_game():
 def start():
     try:
         terminal.open()
-        terminal.set("window: size=120x50; window.title='Gold Miners';" +
+        terminal.set("window: size=120x50; window.title='Gold Miner';" +
                      "font: res/proggy/ProggySquare.ttf, size=12;" +
                      "input: filter=[keyboard],alt-functions=false;")
 

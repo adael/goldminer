@@ -1,15 +1,20 @@
 from bearlibterminal import terminal
-from goldminer import game
+from goldminer import game, settings
+from goldminer.History import History
 from goldminer.WorldMap import WorldMap
 from goldminer.Player import Player, PlayerGui
 
 
 class PlayingState:
+
     def __init__(self):
-        self.world = WorldMap(game.MAP_WIDTH, game.MAP_HEIGHT)
+        self.history = History(2, settings.map_height, settings.screen_width,
+                               settings.screen_height - settings.map_height - 1)
+        self.world = WorldMap(settings.map_width, settings.map_height, self.history)
         self.player = Player(25, 25)
         self.world.add(self.player)
         self.player_gui = PlayerGui(self.player)
+        self.player.say("Hello, I'm back!")
 
     def handle_input(self, key):
         if key == terminal.TK_ESCAPE:
@@ -26,6 +31,8 @@ class PlayingState:
             self.player.heal(1)
         elif key in (terminal.TK_KP_MINUS, ):
             self.player.heal(-1)
+        elif key in (terminal.TK_S, ):
+            self.player.say("What do you want?")
 
     def logic(self):
         pass
@@ -35,4 +42,5 @@ class PlayingState:
         self.world.render()
         self.player.render()
         self.player_gui.render()
+        self.history.render()
         terminal.refresh()

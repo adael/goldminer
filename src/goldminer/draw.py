@@ -11,6 +11,14 @@ def color_for_value(value, colors=None):
     return colors[index]
 
 
+def double_line(x, y, width):
+    line(x, y, width, "[U+2550]")
+
+
+def line(x, y, width, code="[U+2500]"):
+    terminal.print_(x, y, code * width)
+
+
 def progress_label(x, y, label, value, max_value, color):
     label += " [color={}]{}[color=white]/{}".format(color, value, max_value)
     terminal.print_(x, y, label)

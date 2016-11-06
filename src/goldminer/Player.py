@@ -1,7 +1,8 @@
 from bearlibterminal import terminal
-from goldminer import game
-from goldminer import draw
+from goldminer import settings, draw, text, History
 from goldminer.Rect import Rect
+from goldminer.Stat import Stat
+from goldminer.Inventory import Inventory, WaterEffect, InventoryItem
 
 
 class Player:
@@ -12,6 +13,12 @@ class Player:
         self.hp = Stat("HP:", 10)
         self.water = Stat("Water:", 10, colors=["azure", "light azure"])
         self.food = Stat("Food:", 10)
+
+        potion = InventoryItem("!", "azure",
+                               "A portable water skin, for approximately 30 ounces of water", WaterEffect(5))
+
+        self.inventory = Inventory(self, 20)
+        self.inventory.add(potion, 2)
         self.dead = False
 
     def set_world(self, world):
@@ -41,6 +48,9 @@ class Player:
         self.water.value -= .01
         self.food.value -= .0001
 
+        if self.water.value < 4:
+            self.say(text.im_thirsty())
+
     def render(self):
         terminal.color('orange')
         terminal.put(self.x, self.y, '@')
@@ -53,53 +63,33 @@ class Player:
         if self.hp.value <= 0:
             self.dead = True
 
+    def say(self, text):
+        self.world.history.add("Player says: " + text)
+
 
 class PlayerGui:
     def __init__(self, player):
         self.player = player
-        self.rect = Rect.from_points(game.MAP_WIDTH + 1, 0, game.SCREEN_WIDTH - 1, game.MAP_HEIGHT - 1)
+        self.rect = Rect.from_points(settings.map_width + 1, 0, settings.screen_width - 1, settings.map_height - 1)
 
     def render(self):
         terminal.color('azure')
         draw.rect(self.rect)
 
         x = self.rect.left + 2
-        y = self.rect.top + 1
+        y = self.rect.top + 2
         width = self.rect.width - 3
 
         self.player.hp.render_gui(x, y, width)
-        self.player.water.render_gui(x, y + 3, width)
-        self.player.food.render_gui(x, y + 6, width)
 
+        y += 3
+        self.player.water.render_gui(x, y, width)
 
-class Stat:
-    def __init__(self, label, value, max_value=None, colors=None):
-        if max_value is None:
-            max_value = value
+        y += 3
+        self.player.food.render_gui(x, y, width)
 
-        self.label = label
-        self._value = value
-        self.max_value = max_value
-        self.colors = colors
-        self.bkcolor = "dark gray"
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = min(self.max_value, max(0, value))
-
-    @property
-    def percent(self):
-        return int(round(self._value * 100 / self.max_value, 0))
-
-    @property
-    def size_for(self, width):
-        return int(self.percent * width / 100)
-
-    def render_gui(self, x, y, width):
-        color = draw.color_for_value(self.percent, self.colors)
-        draw.progress_label(x, y, self.label, int(round(self._value, 0)), self.max_value, color)
-        draw.progress(x, y + 1, width, self.percent, color, self.bkcolor)
+        y += 4
+        terminal.color("#AA6939")
+        terminal.print_(x, y, "Inventory:")
+        draw.double_line(x, y + 1, width)
+        self.player.inventory.render(x, y + 2, width)
