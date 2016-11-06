@@ -12,3 +12,7 @@ world. Your first quest is to make your pickaxe. Let's go digging.
 The awesome BearLibTerminal http://foo.wyrd.name/en:bearlibterminal
 
 
+# Screenshot
+
+![ingame screenshot]
+(https://i.imgsafe.org/e87b5717fe.png)
