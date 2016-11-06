@@ -22,7 +22,7 @@ class MenuState:
         if self.lst.is_selected():
             item = self.lst.item_selected()
             if item.label == "Continue":
-                game.load_previus_game()
+                game.load_previous_game()
                 game.show_game()
             elif item.label == "New Game":
                 game.start_new_game()

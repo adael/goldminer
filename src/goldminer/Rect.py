@@ -1,9 +1,22 @@
 class Rect:
+
+    @staticmethod
+    def from_points(x1, y1, x2, y2):
+        return Rect(x1, y1, x2 - x1, y2 - y1)
+
     def __init__(self, x, y, w, h):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
+
+    @property
+    def width(self):
+        return self.w
+
+    @property
+    def height(self):
+        return self.h
 
     @property
     def left(self):

@@ -49,7 +49,7 @@ def start():
         terminal.open()
         terminal.set("window: size=120x50; window.title='Gold Miners';" +
                      "font: res/proggy/ProggySquare.ttf, size=12;" +
-                     "input: filter=[keyboard]")
+                     "input: filter=[keyboard],alt-functions=false;")
 
         show_menu()
         while running:

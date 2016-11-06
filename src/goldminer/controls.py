@@ -60,11 +60,11 @@ class SelectBox:
         self.h = h
 
     def handle_input(self, key):
-        if key == terminal.TK_UP or key == terminal.TK_KP_8:
+        if key in (terminal.TK_UP, terminal.TK_KP_8):
             self.up_item()
-        elif key == terminal.TK_DOWN or key == terminal.TK_KP_2:
+        elif key in (terminal.TK_DOWN, terminal.TK_KP_2):
             self.down_item()
-        elif key == terminal.TK_RETURN or key == terminal.TK_KP_ENTER:
+        elif key in (terminal.TK_RETURN, terminal.TK_KP_ENTER):
             self.select_focused_item()
 
     def render(self):
