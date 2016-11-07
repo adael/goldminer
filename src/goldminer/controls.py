@@ -1,15 +1,15 @@
 from bearlibterminal import terminal
 
+from goldminer.Rect import Rect
+
 
 class SelectItem:
-
     def __init__(self, label, active=True):
         self.label = label
         self.active = active
 
 
 class SelectBox:
-
     def __init__(self, x, y, items):
         self.x = x
         self.y = y
@@ -88,3 +88,4 @@ class SelectBox:
 
             y += height
             index += 1
+

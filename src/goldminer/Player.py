@@ -70,10 +70,11 @@ class Player:
 class PlayerGui:
     def __init__(self, player):
         self.player = player
-        self.rect = Rect.from_points(settings.map_width + 1, 0, settings.screen_width - 1, settings.map_height - 1)
+        self.rect = settings.gui_rect
 
     def render(self):
         terminal.color('azure')
+
         draw.rect(self.rect)
 
         x = self.rect.left + 2

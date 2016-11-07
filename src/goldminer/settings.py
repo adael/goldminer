@@ -1,4 +1,32 @@
-screen_width = 120
-screen_height = 50
-map_width = 80
-map_height = 43
+from bearlibterminal import terminal
+from goldminer.Rect import Rect
+
+initial_screen_width = 120
+initial_screen_height = 50
+
+gui_width = 40
+status_height = 10
+screen_rect = Rect()
+map_rect = Rect()
+gui_rect = Rect()
+status_rect = Rect()
+
+
+def update():
+    screen_rect.set_position(0, 0)
+    screen_rect.set_size(terminal.state(terminal.TK_WIDTH),
+                         terminal.state(terminal.TK_HEIGHT))
+
+    map_rect.set_position(0, 0)
+    map_rect.set_size(screen_rect.w - gui_width, screen_rect.h - status_height)
+
+    gui_rect.set_position(map_rect.right, 0)
+    gui_rect.set_size(gui_width, map_rect.height)
+
+    status_rect.set_position(0, map_rect.bottom)
+    status_rect.set_size(screen_rect.width, status_height)
+
+    print("Screen: {}".format(screen_rect))
+    print("Map: {}".format(map_rect))
+    print("Gui: {}".format(gui_rect))
+    print("Status: {}".format(status_rect))

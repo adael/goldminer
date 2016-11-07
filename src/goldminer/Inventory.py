@@ -39,7 +39,6 @@ class InventoryItem:
         self.description = description
         self.effect = effect
 
-
 class HealEffect:
     def __init__(self, amount=5):
         self.amount = amount

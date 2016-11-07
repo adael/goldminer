@@ -4,26 +4,25 @@ from goldminer.Rect import Rect
 
 floor_colors = ["darkest green", "dark green", "dark gray"]
 
+
 class WorldMap:
-    def __init__(self, w, h, history):
-        self.w = w
-        self.h = h
+    def __init__(self, rect, history):
         self.history = history
-        self.rect = Rect(0, 0, w, h)
-        self.viewport = Rect(0, 0, w, h)
-        self.tiles = [[Tile() for _ in range(self.h)] for _ in range(self.w)]
+        self.rect = rect
+        self.viewport = rect
+        self.tiles = [[Tile() for _ in range(self.rect.h)] for _ in range(self.rect.w)]
         self.make_borders()
         self.create_mine()
         self.actors = []
 
     def make_borders(self):
-        for y in range(self.h):
+        for y in range(self.rect.h):
             self.make_wall(0, y)
-            self.make_wall(self.w - 1, y)
+            self.make_wall(self.rect.w - 1, y)
 
-        for x in range(self.w):
+        for x in range(self.rect.w):
             self.make_wall(x, 0)
-            self.make_wall(x, self.h - 1)
+            self.make_wall(x, self.rect.h - 1)
 
     def create_mine(self):
         self.make_wall(10, 10)
@@ -59,9 +58,7 @@ class WorldMap:
 
 
 class Tile:
-
     def __init__(self, char="·", walkable=True, color="gray"):
-
         if char == "·" and color == "gray":
             color = random.choice(floor_colors)
 

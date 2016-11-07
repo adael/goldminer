@@ -4,8 +4,8 @@ from goldminer.Rect import Rect
 
 class History:
 
-    def __init__(self, x, y, w, h):
-        self.rect = Rect(x, y, w, h)
+    def __init__(self, rect):
+        self.rect = rect
         self.rollback = 0
         self.messages = []
 

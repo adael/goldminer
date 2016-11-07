@@ -4,9 +4,21 @@ class Rect:
     def from_points(x1, y1, x2, y2):
         return Rect(x1, y1, x2 - x1, y2 - y1)
 
-    def __init__(self, x, y, w, h):
+    def __init__(self, x=0, y=0, w=0, h=0):
         self.x = x
         self.y = y
+        self.w = w
+        self.h = h
+
+    def set(self, x, y, w, h):
+        self.set_position(x, y)
+        self.set_size(w, h)
+
+    def set_position(self, x, y):
+        self.x = x
+        self.y = y
+
+    def set_size(self, w, h):
         self.w = w
         self.h = h
 
@@ -34,6 +46,14 @@ class Rect:
     def bottom(self):
         return self.y + self.h
 
+    @property
+    def center_x(self):
+        return self.x + int(self.w / 2)
+
+    @property
+    def center_y(self):
+        return self.y + int(self.h / 2)
+
     def contains(self, x, y):
         return (self.x <= x <= self.right and
                 self.y <= y <= self.bottom)
@@ -60,4 +80,4 @@ class Rect:
         self.h += n
 
     def __str__(self):
-        return "<Rect (%s,%s)-(%s,%s)>" % (self.left, self.top, self.right, self.bottom)
+        return "<Rect {},{} {}x{}>".format(self.left, self.top, self.width, self.height)
