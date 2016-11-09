@@ -49,6 +49,7 @@ def start():
         title = "Gold Miner"
         size = "{}x{}".format(settings.initial_screen_width, settings.initial_screen_height)
         font = "res/proggy/ProggySquare.ttf"
+        #font = "res/DejaVuSansMono.ttf"
         font_size = 12
 
         terminal.open()
@@ -56,6 +57,8 @@ def start():
                      "window.title='{}';".format(title) +
                      "font: {}, size={};".format(font, font_size) +
                      "input: filter=[keyboard],alt-functions=false;")
+
+        # terminal.set("0xE000: res/img/tree.png, size=12x12, align=center")
 
         settings.update()
 

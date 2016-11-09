@@ -1,3 +1,4 @@
+import random
 from bearlibterminal import terminal
 from goldminer import game, settings, draw
 from goldminer.History import History
@@ -11,6 +12,7 @@ class PlayingState:
     def __init__(self):
         self.history = History(settings.status_rect)
         r = settings.map_rect
+        random.seed(1234)
         self.world = WorldMap(Rect(r.x + 1, r.y + 1, r.width - 2, r.height - 2), self.history)
         self.player = Player(25, 25)
         self.world.add(self.player)
