@@ -1,7 +1,6 @@
 import random
-from bearlibterminal import terminal
+
 from goldminer import settings
-from goldminer.Rect import Rect
 
 floor_colors = ["gray", "dark gray", "darker gray", "darkest gray", "darkest yellow", "darker yellow"]
 

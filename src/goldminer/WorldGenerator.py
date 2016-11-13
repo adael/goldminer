@@ -1,4 +1,5 @@
 import random
+
 from goldminer.World import Resource
 
 

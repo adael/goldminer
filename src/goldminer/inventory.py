@@ -1,4 +1,3 @@
-from bearlibterminal import terminal
 from goldminer import texts
 
 

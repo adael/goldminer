@@ -1,9 +1,8 @@
-import random, math
-from bearlibterminal import terminal
-from goldminer import settings, draw, texts, History
-from goldminer.Rect import Rect
+import math
+import random
+
+from goldminer import texts
 from goldminer.Stat import Stat
-from goldminer.inventory import Inventory, RestoreThirstEffect, InventoryItem
 
 
 class Actor:

@@ -1,5 +1,6 @@
-from bearlibterminal import terminal
 from enum import Enum
+
+from bearlibterminal import terminal
 
 
 class Gamepad(Enum):

@@ -1,4 +1,5 @@
 from bearlibterminal import terminal
+
 from goldminer.Rect import Rect
 
 initial_screen_width = 120

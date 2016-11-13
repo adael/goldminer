@@ -1,15 +1,15 @@
 import random
-from enum import Enum
 
 from bearlibterminal import terminal
+
 from goldminer import game, settings, draw, texts
 from goldminer.History import History
 from goldminer.InventoryState import InventoryState
-from goldminer.WorldGenerator import WorldGenerator
 from goldminer.World import World, WorldMap
+from goldminer.WorldGenerator import WorldGenerator
 from goldminer.actor import Actor, Fighter
-from goldminer.inventory import Inventory
 from goldminer.gamepad import Gamepad, key_to_action
+from goldminer.inventory import Inventory
 
 
 def create_player():

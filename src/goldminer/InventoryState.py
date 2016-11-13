@@ -1,6 +1,6 @@
 from bearlibterminal import terminal
-from goldminer import game, draw, settings, texts
-from goldminer.Rect import Rect
+
+from goldminer import game, draw, settings
 
 
 class InventoryState:

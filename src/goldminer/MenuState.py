@@ -1,7 +1,8 @@
-from goldminer import game
 from bearlibterminal import terminal
-from goldminer.controls import SelectBox, SelectItem
+
 from goldminer import draw
+from goldminer import game
+from goldminer.controls import SelectBox, SelectItem
 
 
 class MenuState:

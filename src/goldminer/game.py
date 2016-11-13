@@ -1,7 +1,6 @@
 from bearlibterminal import terminal
 
 from goldminer import settings
-from goldminer.InventoryState import InventoryState
 from goldminer.MenuState import MenuState
 from goldminer.PlayingState import PlayingState
 
