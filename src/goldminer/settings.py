@@ -11,6 +11,9 @@ map_rect = Rect()
 gui_rect = Rect()
 status_rect = Rect()
 
+hp_colors = ["darkest red", "darker red", "dark red", "red", "orange", "dark green", "green"]
+water_colors = ["dark azure", "azure", "light azure"]
+food_colors = ["darkest amber", "darker amber", "dark amber", "amber"]
 
 def update():
     screen_rect.set_position(0, 0)

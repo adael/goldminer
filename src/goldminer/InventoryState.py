@@ -16,17 +16,7 @@ class InventoryState:
         pass
 
     def render(self):
-        terminal.color("azure")
-        draw.window(settings.gui_rect, "Inventory window")
-
-        if self.inventory.is_empty():
-            inner_width = settings.gui_rect.width - 2
-            terminal.print_(settings.gui_rect.x + 1, settings.gui_rect.y + 3,
-                            "[bbox={}][color=teal]{}[/color]".format(inner_width, texts.inventory_is_empty()))
-        else:
-            self.render_items()
-
-        terminal.refresh()
+        draw.draw_inventory_state(self)
 
     def render_items(self):
         line_x = settings.gui_rect.x + 1

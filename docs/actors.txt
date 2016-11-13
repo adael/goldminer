@@ -1,0 +1,28 @@
+Senses (see, listen, feel)
+
+    An actor sees things when enter in his sight range but only if his
+    awareness is 100% (which will never be).
+    There's a chance to notice things in his sight range. If an actor notices
+    something, it will "see" that.
+
+    When other actor enter in his sight range, the visibility of the other
+    actor will affect. If an actor sees another, then it will appear in
+    his history the following text:
+
+        "Actor" sees other actor
+
+    If the reason for viewing other actor is because the other actor has
+    made some noise the history will be
+
+        "Actor" ears other actor
+
+    Then there's a chance to see it (if it's possible) and then will follow
+    with
+
+        "Actor" sees other actor
+
+    If the action it's another, for example, an abrupt movement or attack
+    the it will appears in the history as:
+
+        "Actor" sees other actor "attacking <target>"
+        "Actor" sees other actor "jumping"

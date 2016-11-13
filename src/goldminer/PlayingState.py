@@ -1,10 +1,11 @@
 import random
 from bearlibterminal import terminal
-from goldminer import game, settings, draw
+from goldminer import game, settings, draw, texts
 from goldminer.History import History
 from goldminer.InventoryState import InventoryState
 from goldminer.Rect import Rect
-from goldminer.WorldMap import WorldMap
+from goldminer.WorldGenerator import WorldGenerator
+from goldminer.World import World, WorldMap
 from goldminer.Actor import Actor, Fighter
 from goldminer.Inventory import Inventory
 
@@ -13,14 +14,18 @@ def create_player():
     player = Actor("Player", "@", "orange", 25, 25)
     player.fighter = Fighter(player)
     player.inventory = Inventory(player)
+    player.history = History()
     return player
 
 
 def create_world():
-    history = History()
+    seed = 1234
+    worldmap = WorldMap(512, 512)
+    wgen = WorldGenerator()
+    wgen.generate(worldmap, seed)
     player = create_player()
-    world = WorldMap(512, 512, player, history)
-    player.say("Hello, I'm back!")
+    world = World(worldmap, player)
+    player.think(texts.im_back)
     return world
 
 
@@ -39,7 +44,6 @@ class PlayingState:
     def __init__(self):
         random.seed(1234)
         self.world = create_world()
-
         self.show_inventory = False
 
     def handle_input(self, key):
@@ -71,9 +75,8 @@ class PlayingState:
 
     def render(self):
         terminal.clear()
-        draw.playing_layout()
-        terminal.color("white")
+        draw.draw_game_layout()
         draw.draw_world(self.world)
-        draw.render_actor_stats(self.world.player)
-        self.world.history.rendher()
+        draw.draw_actor_stats(self.world.player)
+        draw.draw_history(self.world.player.history)
         terminal.refresh()

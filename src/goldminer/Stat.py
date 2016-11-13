@@ -1,16 +1,12 @@
-from goldminer import draw
-
-
 class Stat:
-    def __init__(self, label, value, max_value=None, colors=None):
+
+    def __init__(self, label, value, max_value=None):
         if max_value is None:
             max_value = value
 
         self.label = label
         self._value = value
         self.max_value = max_value
-        self.colors = colors
-        self.bkcolor = "dark gray"
 
     @property
     def value(self):
@@ -27,8 +23,3 @@ class Stat:
     @property
     def size_for(self, width):
         return int(self.percent * width / 100)
-
-    def render_gui(self, x, y, width):
-        color = draw.color_for_value(self.percent, self.colors)
-        draw.progress_label(x, y, self.label, int(round(self._value, 0)), self.max_value, color)
-        draw.progress(x, y + 1, width, self.percent, color, self.bkcolor)

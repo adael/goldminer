@@ -1,7 +1,5 @@
 from bearlibterminal import terminal
 
-from goldminer.Rect import Rect
-
 
 class SelectItem:
     def __init__(self, label, active=True):
@@ -66,26 +64,4 @@ class SelectBox:
             self.down_item()
         elif key in (terminal.TK_RETURN, terminal.TK_KP_ENTER):
             self.select_focused_item()
-
-    def render(self):
-        terminal.clear_area(self.x, self.y, self.w, self.h)
-        index = 0
-        y = 0
-        for item in self.items:
-
-            color = "white"
-            if item.active and self.item_focused_index == index:
-                color = "yellow"
-            elif not item.active:
-                color = "gray"
-
-            box = "[bbox={}]".format(self.w - self.padding_left)
-            height = terminal.measure(box + item.label)
-            terminal.color(color)
-            terminal.print_(self.x + 2, self.y + y, box + item.label)
-            if index == self.item_focused_index:
-                terminal.print_(self.x, self.y + y, "[color=lightblue]>")
-
-            y += height
-            index += 1
 

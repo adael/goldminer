@@ -37,16 +37,7 @@ class MenuState:
         pass
 
     def render(self):
-        terminal.clear()
-
-        caption = ".*{Gold Miner}*."
-
-        terminal.color("yellow")
-        terminal.print_(10, 10, caption)
-        draw.double_line(10, 11, len(caption))
-
-        self.lst.render()
-        terminal.refresh()
+        draw.draw_menu_state(self)
 
 
 class MenuOptionsState:
@@ -56,7 +47,6 @@ class MenuOptionsState:
             SelectItem("Big"),
             SelectItem("Bigger"),
         ])
-
 
     def handle_input(self, key):
         if key == terminal.TK_ESCAPE:
@@ -68,10 +58,4 @@ class MenuOptionsState:
         pass
 
     def render(self):
-        terminal.clear_area(30, 14, 60, 30)
-        terminal.color("yellow")
-        terminal.print_(30, 14, "Screen size")
-        draw.double_line(30, 15, len("Screen size"))
-        self.lst.render()
-        terminal.refresh()
-
+        draw.draw_menu_option_state(self)

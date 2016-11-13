@@ -1,5 +1,5 @@
 from bearlibterminal import terminal
-from goldminer import settings
+from goldminer import settings, texts
 
 
 class Border:
@@ -99,50 +99,37 @@ def window(rect_, caption):
     terminal.print_(rect_.center_x, rect_.y + 1, "[align=center]" + caption)
 
 
-def playing_layout():
+def draw_selectbox(control):
+    terminal.clear_area(control.x, control.y, control.w, control.h)
+    index = 0
+    y = 0
+    for item in control.items:
+
+        color = "white"
+        if item.active and control.item_focused_index == index:
+            color = "yellow"
+        elif not item.active:
+            color = "gray"
+
+        box = "[bbox={}]".format(control.w - control.padding_left)
+        height = terminal.measure(box + item.label)
+        terminal.color(color)
+        terminal.print_(control.x + 2, control.y + y, box + item.label)
+        if index == control.item_focused_index:
+            terminal.print_(control.x, control.y + y, "[color=lightblue]>")
+
+        y += height
+        index += 1
+
+
+# PlayingState
+
+def draw_game_layout():
     terminal.color("azure")
     rect(settings.screen_rect)
     rect(settings.map_rect)
     rect(settings.gui_rect)
     rect(settings.status_rect)
-
-
-def render_actor_stats(actor):
-    r = settings.gui_rect
-    terminal.color('azure')
-
-    rect(r)
-
-    x = r.left + 2
-    y = r.top + 2
-    width = r.width - 3
-
-    actor.fighter.hp.render_gui(x, y, width)
-
-    y += 3
-    actor.fighter.water.render_gui(x, y, width)
-
-    y += 3
-    actor.fighter.food.render_gui(x, y, width)
-
-    y += 4
-    terminal.color("#AA6939")
-    terminal.print_(x, y, "Inventory:")
-    double_line(x, y + 1, width)
-    actor.inventory.render(x, y + 2, width)
-
-
-def draw_history(history):
-    r = settings.status_rect
-    x, y = r.x, r.bottom
-    index = len(history.messages) - 1
-    color = "white"
-    while index >= 0 and y >= r.y:
-        s = "[color={}][bbox={}]{}".format(color, r.width, history.messages[index])
-        terminal.print_(x, y, s)
-        y -= terminal.measure(s)
-        index -= 1
-        color = "dark gray"
 
 
 def draw_world(world):
@@ -177,3 +164,89 @@ def draw_player(player, x, y):
 def draw_entity(entity, x, y):
     terminal.color(entity.color)
     terminal.put(x, y, entity.char)
+
+
+def draw_actor_stats(actor):
+    r = settings.gui_rect
+    terminal.color('azure')
+
+    rect(r)
+
+    x = r.left + 2
+    y = r.top + 2
+    width = r.width - 4
+
+    draw_gui_stat(actor.fighter.hp, x, y, width, settings.hp_colors)
+
+    y += 3
+    draw_gui_stat(actor.fighter.water, x, y, width, settings.water_colors)
+
+    y += 3
+    draw_gui_stat(actor.fighter.food, x, y, width, settings.food_colors)
+
+    y += 4
+    terminal.color("#AA6939")
+    terminal.print_(x, y, "Inventory:")
+    double_line(x, y + 1, width)
+    draw_ingame_inventory_items(actor.inventory, x, y + 3, width)
+
+
+def draw_gui_stat(stat, x, y, width, colors, bkcolor="dark gray"):
+    color = color_for_value(stat.percent, colors)
+    progress_label(x, y, stat.label, int(round(stat.value, 0)), stat.max_value, color)
+    progress(x, y + 1, width, stat.percent, color, bkcolor)
+
+
+def draw_ingame_inventory_items(inventory, x, y, width):
+    items = ["[color={}]{}[/color]".format(item.color, item.char) for item in inventory.items]
+    s = "".join(items)
+    str_items = s + ("[color=white][U+0095] [/color]" * (inventory.max_size - len(items)))
+
+    terminal.print_(x, y, "[bbox={}]".format(width) + str_items)
+
+
+def draw_history(history):
+    r = settings.status_rect
+    x, y = r.x, r.bottom
+    index = len(history.messages) - 1
+    color = "white"
+    while index >= 0 and y >= r.y:
+        s = "[color={}][bbox={}]{}".format(color, r.width, history.messages[index])
+        terminal.print_(x, y, s)
+        y -= terminal.measure(s)
+        index -= 1
+        color = "dark gray"
+
+
+# MenuState
+def draw_menu_state(state):
+    terminal.clear()
+    caption = ".*{Gold Miner}*."
+    terminal.color("yellow")
+    terminal.print_(10, 10, caption)
+    double_line(10, 11, len(caption))
+    draw_selectbox(state.lst)
+    terminal.refresh()
+
+
+def draw_menu_option_state(state):
+    terminal.clear_area(30, 14, 60, 30)
+    terminal.color("yellow")
+    terminal.print_(30, 14, "Screen size")
+    double_line(30, 15, len("Screen size"))
+    draw_selectbox(state.lst)
+    terminal.refresh()
+
+
+def draw_inventory_state(state):
+    terminal.color("azure")
+    window(settings.gui_rect, "Inventory window")
+
+    if state.inventory.is_empty():
+        inner_width = settings.gui_rect.width - 2
+        terminal.print_(settings.gui_rect.x + 1, settings.gui_rect.y + 3,
+                        "[bbox={}][color=teal]{}[/color]".format(inner_width, texts.inventory_is_empty()))
+    else:
+        state.render_items()
+
+    terminal.refresh()

@@ -1,10 +1,12 @@
-import random
-
 no_more_space = [
     "Not enough room for this",
     "I can carry nothing more",
     "No, my inventory it's full",
     "Heck, I need bigger bags"
+]
+
+im_back = [
+    "I'm back!"
 ]
 
 im_thirsty = [
@@ -24,6 +26,12 @@ im_tired = [
     "I need some rest",
     "Let's search for some place to sleep",
     "I should look for a secure place to sleep"
+]
+
+im_muted = [
+    "I cannot talk!",
+    "I am muted!",
+    "I cannot open my mouth!",
 ]
 
 inventory_is_empty = [

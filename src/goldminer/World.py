@@ -10,15 +10,12 @@ def create_tiles(width, height):
     return [[Tile() for _ in range(height)] for _ in range(width)]
 
 
-class WorldMap:
-    def __init__(self, width, height, player, history):
-        self.width = width
-        self.height = height
-        self.player = player
-        self.history = history
-        self.viewport = settings.map_rect
-        self.tiles = create_tiles(width, height)
+class World:
+    def __init__(self, worldmap, player):
+        self.worldmap = worldmap
         self.actors = []
+        self.player = player
+        self.viewport = settings.map_rect
 
     def position_to_viewport(self, x, y):
         return x - self.viewport.x, y - self.viewport.y
@@ -27,7 +24,7 @@ class WorldMap:
         return x + self.viewport.x, y + self.viewport.y
 
     def tile(self, x, y):
-        return self.tiles[x][y]
+        return self.worldmap.tile(x, y)
 
     def add(self, actor):
         actor.set_world(self)
@@ -35,7 +32,7 @@ class WorldMap:
         return actor
 
     def is_walkable(self, x, y):
-        return 0 > x < self.width and 0 > y < self.height and self.tile(x, y).walkable
+        return self.worldmap.is_walkable(x, y)
 
     def actor_move(self, actor, x, y):
         if self.is_walkable(actor.x + x, actor.y + y):
@@ -47,6 +44,21 @@ class WorldMap:
     def actor_say(self, actor, messages):
         if actor is self.player or actor.distance_to(self.player) < 10:
             self.player.listen(actor.name + " says: " + random.choice(messages))
+
+
+
+class WorldMap:
+
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.tiles = create_tiles(width, height)
+
+    def tile(self, x, y):
+        return self.tiles[x][y]
+
+    def is_walkable(self, x, y):
+        return 0 > x < self.width and 0 > y < self.height and self.tile(x, y).walkable
 
 
 class Tile:

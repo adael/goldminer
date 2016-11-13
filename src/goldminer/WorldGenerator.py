@@ -1,5 +1,6 @@
 import random
-from goldminer.WorldMap import Resource
+from goldminer.World import Resource
+
 
 class WorldGenerator:
 
@@ -58,8 +59,8 @@ class WorldGenerator:
     def random_tile_groups(self, max_groups=5, group_size=5):
         tile_coords = []
         for group in range(random.randint(0, max_groups)):
-            x = random.randint(self.world.width)
-            y = random.randint(self.world.height)
+            x = random.randint(0, self.world.width)
+            y = random.randint(0, self.world.height)
             for z in range(random.randint(0, group_size)):
                 mx, my = self.random_orientation()
                 tile_coords.append((x + mx, y + my))
