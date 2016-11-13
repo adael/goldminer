@@ -3,7 +3,7 @@ from bearlibterminal import terminal
 from goldminer import settings, draw, texts, History
 from goldminer.Rect import Rect
 from goldminer.Stat import Stat
-from goldminer.Inventory import Inventory, RestoreThirstEffect, InventoryItem
+from goldminer.inventory import Inventory, RestoreThirstEffect, InventoryItem
 
 
 class Actor:

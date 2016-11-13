@@ -46,9 +46,7 @@ class World:
             self.player.listen(actor.name + " says: " + random.choice(messages))
 
 
-
 class WorldMap:
-
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -58,7 +56,7 @@ class WorldMap:
         return self.tiles[x][y]
 
     def is_walkable(self, x, y):
-        return 0 > x < self.width and 0 > y < self.height and self.tile(x, y).walkable
+        return 0 >= x < self.width and 0 >= y < self.height and self.tile(x, y).walkable
 
 
 class Tile:

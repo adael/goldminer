@@ -1,13 +1,15 @@
 import random
+from enum import Enum
+
 from bearlibterminal import terminal
 from goldminer import game, settings, draw, texts
 from goldminer.History import History
 from goldminer.InventoryState import InventoryState
-from goldminer.Rect import Rect
 from goldminer.WorldGenerator import WorldGenerator
 from goldminer.World import World, WorldMap
-from goldminer.Actor import Actor, Fighter
-from goldminer.Inventory import Inventory
+from goldminer.actor import Actor, Fighter
+from goldminer.inventory import Inventory
+from goldminer.gamepad import Gamepad, key_to_action
 
 
 def create_player():
@@ -20,7 +22,7 @@ def create_player():
 
 def create_world():
     seed = 1234
-    worldmap = WorldMap(512, 512)
+    worldmap = WorldMap(settings.default_world_width, settings.default_world_height)
     wgen = WorldGenerator()
     wgen.generate(worldmap, seed)
     player = create_player()
@@ -29,14 +31,14 @@ def create_world():
     return world
 
 
-def handle_movement(key):
-    if key in (terminal.TK_UP, terminal.TK_KP_8):
+def movement_action_to_coords(action):
+    if action == Gamepad.up:
         return 0, -1
-    elif key in (terminal.TK_DOWN, terminal.TK_KP_2):
+    elif action == Gamepad.down:
         return 0, 1
-    elif key in (terminal.TK_LEFT, terminal.TK_KP_4):
+    elif action == Gamepad.left:
         return -1, 0
-    elif key in (terminal.TK_RIGHT, terminal.TK_KP_6):
+    elif action == Gamepad.right:
         return 1, 0
 
 
@@ -47,24 +49,29 @@ class PlayingState:
         self.show_inventory = False
 
     def handle_input(self, key):
-        if not self.handle_command(key):
-            (x, y) = handle_movement(key)
-            if x is not None:
-                self.world.actor_move(self.world.player, x, y)
+        action = key_to_action(key)
 
-    def handle_command(self, key):
-        if key == terminal.TK_ESCAPE:
+        if not action:
+            return False
+
+        return self.handle_action(action) or self.handle_movement_action(action)
+
+    def handle_action(self, action):
+        if action == Gamepad.back:
             game.show_menu()
-        elif key in (terminal.TK_I,):
+        elif action == Gamepad.lb:
             game.set_state(InventoryState(self.world.player.inventory))
-        elif key in (terminal.TK_KP_PLUS,):
-            self.world.player.heal(1)
-        elif key in (terminal.TK_KP_MINUS,):
-            self.world.player.heal(-1)
-        elif key in (terminal.TK_S,):
-            self.world.player.say("What do you want?")
         else:
             return False
+        return True
+
+    def handle_movement_action(self, action):
+        r = movement_action_to_coords(action)
+        if r is None:
+            return False
+
+        (x, y) = r
+        self.world.actor_move(self.world.player, x, y)
         return True
 
     def move_player(self, x, y):
