@@ -13,7 +13,7 @@ from goldminer.inventory import Inventory
 
 
 def create_player():
-    player = Actor("Player", "@", "orange", 25, 25)
+    player = Actor("Player", "@", "orange", 1, 1)
     player.fighter = Fighter(player)
     player.inventory = Inventory(player)
     player.history = History()
@@ -71,11 +71,8 @@ class PlayingState:
             return False
 
         (x, y) = r
-        self.world.actor_move(self.world.player, x, y)
+        self.world.player_move(x, y)
         return True
-
-    def move_player(self, x, y):
-        self.world.player.move(x, y)
 
     def logic(self):
         pass

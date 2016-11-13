@@ -1,12 +1,7 @@
 import random
 
 from goldminer import settings
-
-floor_colors = ["gray", "dark gray", "darker gray", "darkest gray", "darkest yellow", "darker yellow"]
-
-
-def create_tiles(width, height):
-    return [[Tile() for _ in range(height)] for _ in range(width)]
+from goldminer.Rect import Rect
 
 
 class World:
@@ -14,13 +9,7 @@ class World:
         self.worldmap = worldmap
         self.actors = []
         self.player = player
-        self.viewport = settings.map_rect
-
-    def position_to_viewport(self, x, y):
-        return x - self.viewport.x, y - self.viewport.y
-
-    def position_from_viewport(self, x, y):
-        return x + self.viewport.x, y + self.viewport.y
+        self.camera = Camera(Rect.from_rect(settings.map_rect), self.worldmap.width, self.worldmap.height)
 
     def tile(self, x, y):
         return self.worldmap.tile(x, y)
@@ -37,6 +26,11 @@ class World:
         if self.is_walkable(actor.x + x, actor.y + y):
             actor.move(x, y)
 
+    def player_move(self, x, y):
+        if self.is_walkable(self.player.x + x, self.player.y + y):
+            self.player.move(x, y)
+            self.camera.update(self.player.x, self.player.y)
+
     def actor_heal(self, actor, amount):
         actor.heal(amount)
 
@@ -45,45 +39,64 @@ class World:
             self.player.listen(actor.name + " says: " + random.choice(messages))
 
 
+class Camera:
+    def __init__(self, rect, map_width, map_height):
+        self.rect = rect
+        self.map_width = map_width
+        self.map_height = map_height
+
+    def update(self, tx, ty):
+        # coordinates so that the target is at the center of the screen
+        x = int(tx - self.rect.w / 2)
+        y = int(ty - self.rect.h / 2)
+
+        # make sure the camera doesn't see outside the map
+        x = max(0, min(self.map_width - self.rect.width, x))
+        y = max(0, min(self.map_height - self.rect.height, y))
+
+        self.rect.set_position(x, y)
+
+    def map_to_camera(self, x, y):
+        return x - self.rect.x, y - self.rect.y
+
+    def camera_to_map(self, x, y):
+        return x + self.rect.x, y + self.rect.y
+
+
 class WorldMap:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.tiles = create_tiles(width, height)
+        self.tiles = []
+        self.resources = []
 
     def tile(self, x, y):
         return self.tiles[x][y]
 
     def is_walkable(self, x, y):
-        return 0 >= x < self.width and 0 >= y < self.height and self.tile(x, y).walkable
+        if 0 < x >= self.width or 0 < y >= self.height:
+            return False
+
+        return self.tile(x, y).is_walkable()
 
 
 class Tile:
-    def __init__(self, char="·", walkable=True, color="gray"):
-        if char == "·" and color == "gray":
-            color = random.choice(floor_colors)
-
+    def __init__(self, char="·", color="gray", walkable=True, ):
         self.char = char
-        self._walkable = walkable
         self.color = color
+        self.walkable = walkable
         self.resource = None
 
-    @property
-    def walkable(self):
+    def is_walkable(self):
         if self.resource:
             return self.resource.walkable
         else:
-            return self._walkable
-
-    @walkable.setter
-    def walkable(self, value):
-        if not self.resource:
-            self._walkable = value
+            return self.walkable
 
 
 class Resource:
-    def __init__(self, char="*", walkable=False, color="yellow"):
+    def __init__(self, char, color, quantity, walkable=False):
         self.char = char
-        self.walkable = walkable
         self.color = color
-        self.quantity = random.randint(1, 500)
+        self.quantity = quantity
+        self.walkable = walkable

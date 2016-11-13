@@ -1,10 +1,14 @@
 import random
 
-from goldminer.World import Resource
+from goldminer import settings
+from goldminer.World import Resource, Tile
+
+
+def create_floor_tiles(width, height):
+    return [[Tile(".", random.choice(settings.floor_colors)) for _ in range(height)] for _ in range(width)]
 
 
 class WorldGenerator:
-
     def __init__(self):
         self.rng = random.Random()
         self.world = None
@@ -12,10 +16,14 @@ class WorldGenerator:
     def generate(self, world, seed):
         self.rng.seed(seed)
         self.world = world
-        # self.make_borders()
+        self.make_floor()
+        self.make_borders()
         self.create_mine()
         self.put_resources()
         self.put_trees()
+
+    def make_floor(self):
+        self.world.tiles = create_floor_tiles(self.world.width, self.world.height)
 
     def make_borders(self):
         for y in range(self.world.height):
@@ -48,14 +56,14 @@ class WorldGenerator:
             x, y = coord
             tile = self.world.tile(x, y)
             if tile.walkable and not tile.resource:
-                tile.resource = Resource()
+                tile.resource = Resource("*", "yellow", random.randint(0, 10))
 
     def put_trees(self):
         for coord in self.random_tile_groups(10, 10):
             x, y = coord
             tile = self.world.tile(x, y)
             if tile.walkable and not tile.resource:
-                tile.resource = Resource(char="^", color="dark green")
+                tile.resource = Resource("^", "dark green", random.randint(3, 12))
 
     def random_tile_groups(self, max_groups=5, group_size=5):
         tile_coords = []

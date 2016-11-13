@@ -1,0 +1,23 @@
+I would give thanks to:
+
+- cfyzium for his Bearlibterminal
+  https://bitbucket.org/cfyzium/bearlibterminal
+  http://foo.wyrd.name/en:bearlibterminal
+
+- Roguebasin
+  http://www.roguebasin.com/
+
+- Complete Roguelike Tutorial, using python+libtcod
+  Code and tutorial written by João F. Henriques (a.k.a. Jotaf).
+  http://www.roguebasin.com/index.php?title=Complete_Roguelike_Tutorial,_using_python%2Blibtcod
+
+- Roguelike community at reddit
+  https://www.reddit.com/r/roguelikedev/
+
+- Libtcod
+  http://roguecentral.org/doryen/libtcod/
+  https://bitbucket.org/libtcod/libtcod
+
+- Jeff Lait for his awesome game: Powder
+  http://www.zincland.com/powder/
+  http://www.roguebasin.com/index.php?title=Jeff_Lait

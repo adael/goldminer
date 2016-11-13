@@ -5,8 +5,8 @@ from goldminer.Rect import Rect
 initial_screen_width = 120
 initial_screen_height = 50
 
-default_world_width = 512
-default_world_height = 512
+default_world_width = 128
+default_world_height = 128
 
 gui_width = 40
 status_height = 10
@@ -18,6 +18,7 @@ status_rect = Rect()
 hp_colors = ["darkest red", "darker red", "dark red", "red", "orange", "dark green", "green"]
 water_colors = ["dark azure", "azure", "light azure"]
 food_colors = ["darkest amber", "darker amber", "dark amber", "amber"]
+floor_colors = ["gray", "dark gray", "darker gray", "darkest gray", "darkest yellow", "darker yellow"]
 
 
 def update():

@@ -121,13 +121,13 @@ class Fighter:
         self.food.value -= amount / 10000
 
         if self.fatigue.value < 4 and random.random() < .3:
-            self.owner.feel(self.owner, texts.im_tired)
+            self.owner.feel(texts.im_tired)
 
         if self.water.value < 4 and random.random() < .3:
-            self.owner.feel(self.owner, texts.im_thirsty)
+            self.owner.feel(texts.im_thirsty)
 
         if self.food.value < 2 and random.random() < .2:
-            self.owner.feel(self.owner, texts.im_hungry)
+            self.owner.feel(texts.im_hungry)
 
     def attack(self, other):
         if other.defense < self.damage:

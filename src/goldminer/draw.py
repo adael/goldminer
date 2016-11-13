@@ -134,16 +134,15 @@ def draw_game_layout():
 
 
 def draw_world(world):
-    for y in range(world.viewport.y, world.viewport.h):
-        for x in range(world.viewport.x, world.viewport.w):
-            px, py = world.position_to_viewport(x, y)
-            draw_tile(world.tile(x, y), px, py)
+    for x, y in settings.map_rect:
+        px, py = world.camera.camera_to_map(x, y)
+        draw_tile(world.tile(px, py), x, y)
 
     for actor in world.actors:
-        x, y = world.position_to_viewport(actor.x, actor.y)
+        x, y = world.camera.map_to_camera(actor.x, actor.y)
         draw_actor(actor, x, y)
 
-    x, y = world.position_to_viewport(world.player.x, world.player.y)
+    x, y = world.camera.map_to_camera(world.player.x, world.player.y)
     draw_player(world.player, x, y)
 
 

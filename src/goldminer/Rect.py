@@ -1,14 +1,23 @@
 class Rect:
 
-    @staticmethod
-    def from_points(x1, y1, x2, y2):
-        return Rect(x1, y1, x2 - x1, y2 - y1)
+    @classmethod
+    def from_points(cls, x1, y1, x2, y2):
+        return cls(x1, y1, x2 - x1, y2 - y1)
+
+    @classmethod
+    def from_rect(cls, other):
+        return cls(other.x, other.y, other.w, other.h)
 
     def __init__(self, x=0, y=0, w=0, h=0):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
+
+    def __iter__(self):
+        for y in range(self.y, self.h):
+            for x in range(self.x, self.width):
+                yield x, y
 
     def set(self, x, y, w, h):
         self.set_position(x, y)
