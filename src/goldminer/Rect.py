@@ -23,6 +23,14 @@ class Rect:
         self.h = h
 
     @property
+    def position(self):
+        return self.x, self.y
+
+    @property
+    def size(self):
+        return self.w, self.h
+
+    @property
     def width(self):
         return self.w
 

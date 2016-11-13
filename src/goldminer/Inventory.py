@@ -1,23 +1,26 @@
 from bearlibterminal import terminal
-from goldminer import text
+from goldminer import texts
 
 
 class Inventory:
 
-    def __init__(self, owner, max_size):
+    def __init__(self, owner, max_size=8):
         self.owner = owner
         self.max_size = max_size
         self.items = []
 
     def __iter__(self):
-        return self.items
+        return iter(self.items)
+
+    def is_empty(self):
+        return True if self.items else False
 
     def add(self, item, amount=1):
         if len(self.items) + amount < self.max_size:
             for _ in range(amount):
                 self.items.append(item)
         else:
-            self.owner.say(text.no_more_space())
+            self.owner.say(texts.no_more_space())
 
     def render(self, x, y, width):
         terminal.print_(x, y, "[bbox={}]".format(width) + self.for_gui())
@@ -39,6 +42,7 @@ class InventoryItem:
         self.description = description
         self.effect = effect
 
+
 class HealEffect:
     def __init__(self, amount=5):
         self.amount = amount
@@ -47,7 +51,7 @@ class HealEffect:
         target.hp.value += self.amount
 
 
-class WaterEffect:
+class RestoreThirstEffect:
     def __init__(self, amount=5):
         self.amount = amount
 

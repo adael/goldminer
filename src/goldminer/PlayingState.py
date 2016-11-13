@@ -5,54 +5,75 @@ from goldminer.History import History
 from goldminer.InventoryState import InventoryState
 from goldminer.Rect import Rect
 from goldminer.WorldMap import WorldMap
-from goldminer.Player import Player, PlayerGui
+from goldminer.Actor import Actor, Fighter
+from goldminer.Inventory import Inventory
+
+
+def create_player():
+    player = Actor("Player", "@", "orange", 25, 25)
+    player.fighter = Fighter(player)
+    player.inventory = Inventory(player)
+    return player
+
+
+def create_world():
+    history = History()
+    player = create_player()
+    world = WorldMap(512, 512, player, history)
+    player.say("Hello, I'm back!")
+    return world
+
+
+def handle_movement(key):
+    if key in (terminal.TK_UP, terminal.TK_KP_8):
+        return 0, -1
+    elif key in (terminal.TK_DOWN, terminal.TK_KP_2):
+        return 0, 1
+    elif key in (terminal.TK_LEFT, terminal.TK_KP_4):
+        return -1, 0
+    elif key in (terminal.TK_RIGHT, terminal.TK_KP_6):
+        return 1, 0
 
 
 class PlayingState:
     def __init__(self):
-        self.history = History(settings.status_rect)
-        r = settings.map_rect
         random.seed(1234)
-        self.world = WorldMap(Rect(r.x + 1, r.y + 1, r.width - 2, r.height - 2), self.history)
-        self.player = Player(25, 25)
-        self.world.add(self.player)
-        self.player_gui = PlayerGui(self.player)
-        self.player.say("Hello, I'm back!")
+        self.world = create_world()
+
         self.show_inventory = False
 
     def handle_input(self, key):
+        if not self.handle_command(key):
+            (x, y) = handle_movement(key)
+            if x is not None:
+                self.world.actor_move(self.world.player, x, y)
+
+    def handle_command(self, key):
         if key == terminal.TK_ESCAPE:
             game.show_menu()
-        elif key in (terminal.TK_UP, terminal.TK_KP_8):
-            self.player.move_up()
-        elif key in (terminal.TK_DOWN, terminal.TK_KP_2):
-            self.player.move_down()
-        elif key in (terminal.TK_LEFT, terminal.TK_KP_4):
-            self.player.move_left()
-        elif key in (terminal.TK_RIGHT, terminal.TK_KP_6):
-            self.player.move_right()
-        elif key in (terminal.TK_KP_PLUS,):
-            self.player.heal(1)
-        elif key in (terminal.TK_KP_MINUS,):
-            self.player.heal(-1)
-        elif key in (terminal.TK_S,):
-            self.player.say("What do you want?")
         elif key in (terminal.TK_I,):
-            game.set_state(InventoryState(self.player))
+            game.set_state(InventoryState(self.world.player.inventory))
+        elif key in (terminal.TK_KP_PLUS,):
+            self.world.player.heal(1)
+        elif key in (terminal.TK_KP_MINUS,):
+            self.world.player.heal(-1)
+        elif key in (terminal.TK_S,):
+            self.world.player.say("What do you want?")
+        else:
+            return False
+        return True
+
+    def move_player(self, x, y):
+        self.world.player.move(x, y)
 
     def logic(self):
         pass
 
     def render(self):
         terminal.clear()
-        terminal.color("azure")
-        draw.rect(settings.screen_rect)
-        draw.rect(settings.map_rect)
-        draw.rect(settings.gui_rect)
-        draw.rect(settings.status_rect)
+        draw.playing_layout()
         terminal.color("white")
-        self.world.render()
-        self.player.render()
-        self.player_gui.render()
-        self.history.render()
+        draw.draw_world(self.world)
+        draw.render_actor_stats(self.world.player)
+        self.world.history.rendher()
         terminal.refresh()

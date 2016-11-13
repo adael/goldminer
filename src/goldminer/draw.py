@@ -1,4 +1,5 @@
 from bearlibterminal import terminal
+from goldminer import settings
 
 
 class Border:
@@ -84,8 +85,95 @@ def box(x1, y1, x2, y2, border=double_border):
     terminal.put(x1, y2, border.bottomLeft)
 
 
+def corners(x1, y1, x2, y2, border=single_border):
+    terminal.put(x1, y1, border.topLeft)
+    terminal.put(x2, y1, border.topRight)
+    terminal.put(x2, y2, border.bottomRight)
+    terminal.put(x1, y2, border.bottomLeft)
+
+
 def window(rect_, caption):
     terminal.clear_area(rect_.x, rect_.y, rect_.width, rect_.height)
     line(rect_.x + 1, rect_.y + 2, rect_.width - 2, "[U+2594]")
     rect(rect_)
     terminal.print_(rect_.center_x, rect_.y + 1, "[align=center]" + caption)
+
+
+def playing_layout():
+    terminal.color("azure")
+    rect(settings.screen_rect)
+    rect(settings.map_rect)
+    rect(settings.gui_rect)
+    rect(settings.status_rect)
+
+
+def render_actor_stats(actor):
+    r = settings.gui_rect
+    terminal.color('azure')
+
+    rect(r)
+
+    x = r.left + 2
+    y = r.top + 2
+    width = r.width - 3
+
+    actor.fighter.hp.render_gui(x, y, width)
+
+    y += 3
+    actor.fighter.water.render_gui(x, y, width)
+
+    y += 3
+    actor.fighter.food.render_gui(x, y, width)
+
+    y += 4
+    terminal.color("#AA6939")
+    terminal.print_(x, y, "Inventory:")
+    double_line(x, y + 1, width)
+    actor.inventory.render(x, y + 2, width)
+
+
+def draw_history(history):
+    r = settings.status_rect
+    x, y = r.x, r.bottom
+    index = len(history.messages) - 1
+    color = "white"
+    while index >= 0 and y >= r.y:
+        s = "[color={}][bbox={}]{}".format(color, r.width, history.messages[index])
+        terminal.print_(x, y, s)
+        y -= terminal.measure(s)
+        index -= 1
+        color = "dark gray"
+
+
+def draw_world(world):
+    for y in range(world.viewport.y, world.viewport.h):
+        for x in range(world.viewport.x, world.viewport.w):
+            px, py = world.position_to_viewport(x, y)
+            draw_tile(world.tile(x, y), px, py)
+
+    for actor in world.actors:
+        x, y = world.position_to_viewport(actor.x, actor.y)
+        draw_actor(actor, x, y)
+
+    x, y = world.position_to_viewport(world.player.x, world.player.y)
+    draw_player(world.player, x, y)
+
+
+def draw_tile(tile, x, y):
+    if tile.resource:
+        draw_entity(tile.resource, x, y)
+    else:
+        draw_entity(tile, x, y)
+
+
+def draw_actor(actor, x, y):
+    draw_entity(actor, x, y)
+
+
+def draw_player(player, x, y):
+    draw_entity(player, x, y)
+
+
+def draw_entity(entity, x, y):
+    terminal.color(entity.color)
+    terminal.put(x, y, entity.char)
