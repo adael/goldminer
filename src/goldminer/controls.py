@@ -57,11 +57,10 @@ class SelectBox:
         self.w = w + self.padding_left
         self.h = h
 
-    def handle_input(self, key):
-        if key in (terminal.TK_UP, terminal.TK_KP_8):
+    def handle_input(self, action):
+        if action.is_up:
             self.up_item()
-        elif key in (terminal.TK_DOWN, terminal.TK_KP_2):
+        elif action.is_down:
             self.down_item()
-        elif key in (terminal.TK_RETURN, terminal.TK_KP_ENTER):
+        elif action.is_a or action.is_select:
             self.select_focused_item()
-

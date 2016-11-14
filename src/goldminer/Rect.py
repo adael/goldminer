@@ -1,5 +1,4 @@
 class Rect:
-
     @classmethod
     def from_points(cls, x1, y1, x2, y2):
         return cls(x1, y1, x2 - x1, y2 - y1)

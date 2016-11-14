@@ -1,5 +1,4 @@
 class Stat:
-
     def __init__(self, label, value, max_value=None):
         if max_value is None:
             max_value = value

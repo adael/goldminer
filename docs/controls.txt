@@ -1,0 +1,12 @@
+select
+back
+up
+down
+left
+right
+a
+b
+x
+z
+lb
+rb

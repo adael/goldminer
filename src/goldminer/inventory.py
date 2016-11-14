@@ -2,7 +2,6 @@ from goldminer import texts
 
 
 class Inventory:
-
     def __init__(self, owner, max_size=8):
         self.owner = owner
         self.max_size = max_size
@@ -25,8 +24,8 @@ class Inventory:
         if index in self.items:
             self.items[index].apply(self.owner, target)
 
-class InventoryItem:
 
+class InventoryItem:
     def __init__(self, char, color, description, effect=None):
         self.char = char
         self.color = color
@@ -48,4 +47,3 @@ class RestoreThirstEffect:
 
     def apply(self, source, target):
         target.water.value += self.amount
-

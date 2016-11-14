@@ -68,7 +68,7 @@ class Actor:
             self.think(texts.im_muted)
 
     def think(self, text):
-        self.history.add_self(self, "think", text)
+        self.history.add_simple(text, self.color)
 
     # senses
     def can_ear(self):
@@ -96,9 +96,9 @@ class Actor:
 class Fighter:
     def __init__(self, owner):
         self.owner = owner
-        self.hp = Stat("HP:", 10)
-        self.water = Stat("Water:", 10)
-        self.food = Stat("Food:", 10)
+        self.hp = Stat("Health:", 10)
+        self.water = Stat("Hydration:", 10)
+        self.food = Stat("Feeding:", 10)
         self.fatigue = Stat("Fatigue:", 10)
         self.dead = False
         self.damage = 1
@@ -120,14 +120,14 @@ class Fighter:
         self.water.value -= amount / 1000
         self.food.value -= amount / 10000
 
-        if self.fatigue.value < 4 and random.random() < .3:
-            self.owner.feel(texts.im_tired)
+        if self.fatigue.value < 4 and random.random() < .03:
+            self.owner.think(texts.im_tired)
 
-        if self.water.value < 4 and random.random() < .3:
-            self.owner.feel(texts.im_thirsty)
+        if self.water.value < 4 and random.random() < .03:
+            self.owner.think(texts.im_thirsty)
 
-        if self.food.value < 2 and random.random() < .2:
-            self.owner.feel(texts.im_hungry)
+        if self.food.value < 2 and random.random() < .01:
+            self.owner.think(texts.im_hungry)
 
     def attack(self, other):
         if other.defense < self.damage:
