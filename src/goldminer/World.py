@@ -53,6 +53,11 @@ class World:
         if actor is self.player or actor.distance_to(self.player) < 10:
             self.player.listen(actor.name + " says: " + random.choice(messages))
 
+    def logic(self):
+        if self.player.resting:
+            self.player.think("Zzz ...")
+            self.player.restore()
+
 
 class WorldMap:
     def __init__(self, width, height):

@@ -17,9 +17,11 @@ class Actor:
         self.inventory = None
         self.history = None
 
+        self.dead = False
         self.deaf = False
         self.mute = False
         self.blind = False
+        self.resting = False
 
     def set_position(self, x, y):
         self.x, self.y = x, y
@@ -50,6 +52,10 @@ class Actor:
         if self.fighter:
             self.fighter.waste(amount)
 
+    def restore(self, amount=1):
+        if self.fighter:
+            self.fighter.restore(amount)
+
     def can_attack(self, other):
         return self.fighter and other.fighter
 
@@ -60,15 +66,17 @@ class Actor:
     def can_talk(self):
         return not self.mute
 
-    def say(self, text):
+    def say(self, text, probability=1.0):
         if self.can_talk():
-            self.history.add_self(self, "say", text)
-            self.world.actor_say(self, text)
+            if random.random() <= probability:
+                self.history.write_self(self, "say", text)
+                self.world.actor_say(self, text)
         else:
             self.think(texts.im_muted)
 
-    def think(self, text):
-        self.history.add_simple(text, self.color)
+    def think(self, text, probability=1.0):
+        if random.random() <= probability:
+            self.history.write(text, self.color)
 
     # senses
     def can_ear(self):
@@ -79,18 +87,18 @@ class Actor:
 
     def see(self, text):
         if self.can_see():
-            self.history.add_self(self, "see", text)
+            self.history.write_self(self, "see", text)
 
     def ear(self, text):
         if self.can_ear():
-            self.history.add_self(self, "hear", text)
+            self.history.write_self(self, "hear", text)
 
     def listen(self, text):
         if self.can_ear():
-            self.history.add_self(self, "listen", text)
+            self.history.write_self(self, "listen", text)
 
     def feel(self, feeling):
-        self.history.add_self(self, "feel", feeling)
+        self.history.write_self(self, "feel", feeling)
 
 
 class Fighter:
@@ -100,7 +108,6 @@ class Fighter:
         self.water = Stat("Hydration:", 10)
         self.food = Stat("Feeding:", 10)
         self.fatigue = Stat("Fatigue:", 10)
-        self.dead = False
         self.damage = 1
 
         self.last_complain = random.randint(0, 25)
@@ -113,21 +120,32 @@ class Fighter:
     def take_damage(self, amount):
         self.hp.value -= amount
         if self.hp.value <= 0:
-            self.dead = True
+            self.owner.dead = True
 
     def waste(self, amount=1):
         self.fatigue.value -= amount / 100
         self.water.value -= amount / 1000
         self.food.value -= amount / 10000
 
-        if self.fatigue.value < 4 and random.random() < .03:
-            self.owner.think(texts.im_tired)
+        if self.fatigue.value <= 0:
+            self.owner.think(texts.im_losing_consciousness)
+            self.owner.resting = True
+            return
 
-        if self.water.value < 4 and random.random() < .03:
-            self.owner.think(texts.im_thirsty)
+        if self.fatigue.value < 4:
+            self.owner.think(texts.im_tired, 0.015)
 
-        if self.food.value < 2 and random.random() < .01:
-            self.owner.think(texts.im_hungry)
+        if self.water.value < 4:
+            self.owner.think(texts.im_thirsty, 0.015)
+
+        if self.food.value < 2:
+            self.owner.think(texts.im_hungry, 0.005)
+
+    def restore(self, amount=1):
+        self.fatigue.value += amount / 100
+        if self.fatigue.value > .25 and random.random() <= 0.01:
+            self.owner.resting = False
+            self.owner.think(texts.im_wake_up)
 
     def attack(self, other):
         if other.defense < self.damage:

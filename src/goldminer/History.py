@@ -1,32 +1,39 @@
 import random
+from datetime import datetime
 
 
 class History:
     def __init__(self):
         self.messages = []
 
-    def add_simple(self, message, color):
-        message = random.choice(message) if isinstance(message, list) else message
-        txt = "[color={}]{}[/color]".format(color, message)
-        self.messages.append(txt)
+    def insert(self, msg):
+        self.messages.append((datetime.now(), msg))
 
-    def add(self, who, who_color, verb, verb_color, message, message_color):
+    def write(self, msg, color):
+        msg = random.choice(msg) if isinstance(msg, list) else msg
+        txt = "[color={}]{}[/color]".format(color, msg)
+        self.insert(txt)
+
+    def write_self(self, actor, verb, msg, msg_color=None):
+        if not msg_color:
+            msg_color = actor.color
+        self.write_ex("I", actor.color, verb, actor.color, msg, msg_color)
+
+    def write_action(self, actor, verb, msg, msg_color="white"):
+        self.write_ex(actor.name, actor.color, verb, actor.color, msg, msg_color)
+
+    def write_ex(self, who, who_color, verb, verb_color, msg, msg_color):
         verb = random.choice(verb) if isinstance(verb, list) else verb
-        message = random.choice(message) if isinstance(message, list) else message
+        msg = random.choice(msg) if isinstance(msg, list) else msg
 
         txt = "[color={}]{}[/color] ".format(who_color, who) + \
               "[color={}]{}[/color]: ".format(verb_color, verb) + \
-              "[color={}]{}[/color]".format(message_color, message)
+              "[color={}]{}[/color]".format(msg_color, msg)
 
-        self.messages.append(txt)
-
-    def add_self(self, actor, verb, message, message_color=None):
-        if not message_color:
-            message_color = actor.color
-        self.add("I", actor.color, verb, actor.color, message, message_color)
-
-    def add_action(self, actor, verb, message, message_color="white"):
-        self.add(actor.name, actor.color, verb, actor.color, message, message_color)
+        self.insert(txt)
 
     def clear(self):
         self.messages.clear()
+
+    def trim(self):
+        del self.messages[:-100]

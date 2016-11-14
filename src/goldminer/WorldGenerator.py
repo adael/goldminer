@@ -13,7 +13,7 @@ def create_player():
     player.fighter = Fighter(player)
     player.inventory = Inventory(player)
     player.history = History()
-    player.waste(600)
+    player.waste(990)
     player.damage(7)
     return player
 

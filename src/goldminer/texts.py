@@ -28,6 +28,15 @@ im_tired = [
     "I should look for a secure place to sleep"
 ]
 
+im_losing_consciousness = [
+    "! I'm losing consciousness..."
+    "! Blackout"
+]
+
+im_wake_up = [
+    "! I'm wake up, how much time do I blackout?"
+]
+
 im_muted = [
     "I cannot talk!",
     "I am muted!",

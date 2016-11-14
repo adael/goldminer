@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bearlibterminal import terminal
 
 from goldminer import settings, texts
@@ -227,13 +229,13 @@ def draw_ingame_inventory_items(inventory, x, y, width):
 def draw_history(history):
     r = settings.status_rect
     x, y = r.x + 1, r.bottom - 2
-    index = len(history.messages) - 1
     color = "white"
-    while index >= 0 and y > r.y:
-        s = "[color={}][bbox={}]{}".format(color, r.width, history.messages[index])
+    for msgtime, msg in reversed(history.messages):
+        if y <= r.y:
+            return
+        s = "#{} [color={}][bbox={}]{}".format(msgtime.strftime("%H:%M:%S"), color, r.width, msg)
         terminal.print_(x, y, s)
         y -= terminal.measure(s)
-        index -= 1
         color = "dark gray"
 
 

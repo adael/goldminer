@@ -8,6 +8,9 @@ from goldminer.controls import SelectBox, SelectItem
 
 
 class GameState:
+    def __init__(self):
+        self.wait_for_input = True
+
     def show(self):
         pass
 
@@ -34,14 +37,18 @@ class PlayingState(GameState):
     def handle_input(self, action):
         if action.is_back:
             game.show_menu()
-        elif action.is_lb:
-            game.set_state(InventoryState(self.world.player.inventory))
-        elif action.is_movement:
-            (x, y) = action.movement
-            self.world.player_move(x, y)
+            return
+
+        if not self.world.player.dead and not self.world.player.resting:
+            if action.is_lb:
+                game.set_state(InventoryState(self.world.player.inventory))
+            elif action.is_movement:
+                (x, y) = action.movement
+                self.world.player_move(x, y)
 
     def logic(self):
-        pass
+        self.world.logic()
+        self.wait_for_input = not self.world.player.resting
 
     def render(self):
         terminal.clear()
@@ -49,6 +56,7 @@ class PlayingState(GameState):
         draw.draw_world(self.world)
         draw.draw_actor_stats(self.world.player)
         draw.draw_history(self.world.player.history)
+        self.world.player.history.trim()
         terminal.refresh()
 
 
@@ -65,7 +73,10 @@ class MenuState(GameState):
 
     def handle_input(self, action):
         if action.is_back:
-            game.end_game()
+            if game.can_continue():
+                game.show_game()
+            else:
+                game.end_game()
         else:
             self.lst.handle_input(action)
 
@@ -83,11 +94,7 @@ class MenuState(GameState):
                 game.end_game()
 
     def show(self):
-        self.lst.get_item_by_label("Continue").active = game.can_continue()
-        pass
-
-    def logic(self):
-        pass
+        self.lst.items[0].active = game.can_continue()
 
     def render(self):
         draw.draw_menu_state(self)
@@ -108,12 +115,6 @@ class MenuOptionsState(GameState):
         else:
             self.lst.handle_input(action)
 
-    def show(self):
-        pass
-
-    def logic(self):
-        pass
-
     def render(self):
         draw.draw_menu_option_state(self)
 
@@ -126,6 +127,3 @@ class InventoryState(GameState):
     def handle_input(self, action):
         if action.is_back:
             game.show_game()
-
-    def logic(self):
-        pass

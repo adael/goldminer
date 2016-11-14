@@ -1,9 +1,10 @@
+import time
+
 from bearlibterminal import terminal
 
 from goldminer import settings
-from goldminer.states import PlayingState, MenuState
 from goldminer.gamepad import GamePadAction
-
+from goldminer.states import PlayingState, MenuState
 
 running = True
 state = None
@@ -44,6 +45,36 @@ def end_game():
     global running
     running = False
 
+# TODO: Make a smooth eventloop
+# TODO: While the player is resting, the events must occurs at every second.
+# TODO: While the player is awake, the events must occurs at every keystroke.
+def process_input():
+
+    if state.wait_for_input or terminal.has_input():
+        key = terminal.read()
+    else:
+        key = None
+
+    if key == terminal.TK_RESIZED:
+        settings.update()
+        return
+    elif key == terminal.TK_CLOSE:
+        end_game()
+        return
+
+    action = GamePadAction(key)
+    state.handle_input(action)
+
+    if not state.wait_for_input:
+        time.sleep(1/60)
+
+
+def game_loop():
+    while running:
+        state.logic()
+        state.render()
+        process_input()
+
 
 def start():
     try:
@@ -72,20 +103,19 @@ def start():
         settings.update()
 
         show_menu()
-        while running:
-            state.logic()
-            state.render()
-            key = terminal.read()
-
-            if key == terminal.TK_RESIZED:
-                settings.update()
-            elif key == terminal.TK_CLOSE:
-                end_game()
-                break
-
-            action = GamePadAction(key)
-            state.handle_input(action)
+        game_loop()
 
     finally:
         print("Closing...")
         terminal.close()
+
+        # non blocking smaple:
+        # sleep_time = 1.0 / 60
+        # while running:
+        #     if terminal.has_input():
+        #         key = terminal.read()
+        #         state.handle_input(key)
+        #     state.logic()
+        #     state.render()
+        #
+        #     time.sleep(sleep_time)
