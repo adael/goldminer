@@ -1,6 +1,6 @@
 from bearlibterminal import terminal
 
-from goldminer.Rect import Rect
+from goldminer.geom import Rect
 
 # MAP SETTINGS
 default_world_width = 512

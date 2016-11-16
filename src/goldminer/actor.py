@@ -23,6 +23,10 @@ class Actor:
         self.blind = False
         self.resting = False
 
+    @property
+    def position(self):
+        return self.x, self.y
+
     def set_position(self, x, y):
         self.x, self.y = x, y
 
@@ -142,8 +146,8 @@ class Fighter:
             self.owner.think(texts.im_hungry, 0.005)
 
     def restore(self, amount=1):
-        self.fatigue.value += amount / 100
-        if self.fatigue.value > .25 and random.random() <= 0.01:
+        self.fatigue.value += amount / 10
+        if self.fatigue.value > .25 and random.random() <= 0.01 + self.fatigue.value:
             self.owner.resting = False
             self.owner.think(texts.im_wake_up)
 

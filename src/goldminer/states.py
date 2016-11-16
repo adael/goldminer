@@ -3,7 +3,7 @@ import random
 from bearlibterminal import terminal
 
 from goldminer import game, draw
-from goldminer.WorldGenerator import create_world
+from goldminer.pgc import create_world
 from goldminer.controls import SelectBox, SelectItem
 
 
@@ -31,8 +31,13 @@ class PlayingState(GameState):
     def __init__(self):
         super().__init__()
         random.seed(1234)
-        self.world = create_world()
+        self.worlds = []
+        self.enter_world(create_world())
         self.show_inventory = False
+
+    @property
+    def world(self):
+        return self.worlds[-1]
 
     def handle_input(self, action):
         if action.is_back:
@@ -58,6 +63,13 @@ class PlayingState(GameState):
         draw.draw_history(self.world.player.history)
         self.world.player.history.trim()
         terminal.refresh()
+
+    def enter_world(self, world):
+        self.worlds.append(world)
+
+    def leave_world(self):
+        if self.worlds:
+            self.worlds.pop()
 
 
 class MenuState(GameState):
@@ -127,3 +139,6 @@ class InventoryState(GameState):
     def handle_input(self, action):
         if action.is_back:
             game.show_game()
+
+    def render(self):
+        draw.draw_inventory_state(self)

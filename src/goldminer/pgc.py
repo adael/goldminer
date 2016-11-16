@@ -13,20 +13,38 @@ def create_player():
     player.fighter = Fighter(player)
     player.inventory = Inventory(player)
     player.history = History()
-    player.waste(990)
-    player.damage(7)
+    # player.waste(300)
+    # player.damage(7)
     return player
 
 
 def create_world():
     seed = 1234
     world_map = WorldMap(settings.default_world_width, settings.default_world_height)
-    world_generator = WorldGenerator()
-    world_generator.generate(world_map, seed)
+    world_generator = WorldGenerator(world_map, seed)
+    world_generator.generate_complete_world()
     player = create_player()
-    world = World(world_map, player)
+    world = World(world_map, player, seed)
     player.think(texts.im_back)
     return world
+
+
+def create_house(seed):
+    rng = random.Random(seed)
+    width = rng.randint(5, 12)
+    height = rng.randint(5, 12)
+
+    house = WorldMap(width, height)
+    gen = WorldGenerator(house, seed)
+    gen.make_floor()
+    gen.make_borders()
+
+    return house
+
+
+def degrees_to_cross_xy(degrees):
+    r = math.radians(degrees % 90)
+    return int(round(math.cos(r))), int(round(math.sin(r)))
 
 
 def create_floor_tiles(width, height):
@@ -34,13 +52,11 @@ def create_floor_tiles(width, height):
 
 
 class WorldGenerator:
-    def __init__(self):
-        self.rng = random.Random()
-        self.world_map = None
-
-    def generate(self, world_map, seed):
-        self.rng.seed(seed)
+    def __init__(self, world_map, seed):
+        self.rng = random.Random(seed)
         self.world_map = world_map
+
+    def generate_complete_world(self):
         self.make_floor()
         self.make_borders()
         self.create_houses(5)

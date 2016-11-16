@@ -1,14 +1,15 @@
 import random
 
-from goldminer import settings
+from goldminer import settings, pgc, game
 from goldminer.Camera import Camera
 
 
 class World:
-    def __init__(self, world_map, player):
+    def __init__(self, world_map, player, seed):
         self.world_map = world_map
         self.actors = []
         self.player = player
+        self.seed = seed
 
         self.camera = Camera(
             width=settings.map_rect.w,
@@ -19,6 +20,7 @@ class World:
             offset_y=settings.map_rect.y
         )
         self.camera.update(self.player.x, self.player.y)
+        self.room_stack = []
 
     def inside_map(self, x, y):
         return self.world_map.inside_map(x, y)
@@ -38,13 +40,24 @@ class World:
         return self.world_map.is_walkable(x, y)
 
     def actor_move(self, actor, x, y):
-        if self.is_walkable(actor.x + x, actor.y + y):
+        (dx, dy) = actor.x + x, actor.y + y
+        if self.is_walkable(dx, dy):
             actor.move(x, y)
 
     def player_move(self, x, y):
-        if self.is_walkable(self.player.x + x, self.player.y + y):
+        (dx, dy) = self.player.x + x, self.player.y + y
+
+        if self.is_walkable(dx, dy):
             self.player.move(x, y)
-            self.camera.update(self.player.x, self.player.y)
+            return
+
+        tile = self.tile(dx, dy)
+
+        if tile.door:
+            if tile.door.closed:
+                self.tile(dx, dy).door.open()
+            else:
+                self.enter_room(dx, dy)
 
     def actor_heal(self, actor, amount):
         actor.heal(amount)
@@ -57,6 +70,14 @@ class World:
         if self.player.resting:
             self.player.think("Zzz ...")
             self.player.restore()
+        self.camera.update(self.player.x, self.player.y)
+
+    def enter_room(self, x, y):
+        hseed = "room_{}x{}_{}".format(x, y, self.seed)
+        house = pgc.create_house(hseed)
+        self.player.set_position(0, 0)
+        new_world = World(house, self.player, hseed)
+        game.get_game_state().enter_world(new_world)
 
 
 class WorldMap:

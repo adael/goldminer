@@ -1,4 +1,4 @@
-from goldminer.Rect import Rect
+from goldminer.geom import Rect
 
 
 class Camera:

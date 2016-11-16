@@ -9,6 +9,7 @@ from goldminer.states import PlayingState, MenuState
 running = True
 state = None
 states = {}
+FPS = 30
 
 
 def can_continue():
@@ -21,16 +22,24 @@ def set_state(new_state):
     state.show()
 
 
-def show_menu():
+def get_game_state():
+    if 'game' not in states:
+        states['game'] = PlayingState()
+    return states['game']
+
+
+def get_menu_state():
     if 'menu' not in states:
         states['menu'] = MenuState()
-    set_state(states['menu'])
+    return states['menu']
+
+
+def show_menu():
+    set_state(get_menu_state())
 
 
 def show_game():
-    if 'game' not in states:
-        states['game'] = PlayingState()
-    set_state(states['game'])
+    set_state(get_game_state())
 
 
 def load_previous_game():
@@ -45,16 +54,8 @@ def end_game():
     global running
     running = False
 
-# TODO: Make a smooth eventloop
-# TODO: While the player is resting, the events must occurs at every second.
-# TODO: While the player is awake, the events must occurs at every keystroke.
-def process_input():
 
-    if state.wait_for_input or terminal.has_input():
-        key = terminal.read()
-    else:
-        key = None
-
+def handle_event(key):
     if key == terminal.TK_RESIZED:
         settings.update()
         return
@@ -65,15 +66,39 @@ def process_input():
     action = GamePadAction(key)
     state.handle_input(action)
 
-    if not state.wait_for_input:
-        time.sleep(1/60)
+
+def automatic_loop():
+    ticks = 0
+    while not state.wait_for_input:
+        if ticks % FPS == 0:
+            state.logic()
+            state.render()
+            ticks = 0
+
+        if terminal.has_input():
+            key = terminal.read()
+            handle_event(key)
+
+        time.sleep(1 / FPS)
+        ticks += 1
+
+
+def logic():
+    state.logic()
+
+
+def render():
+    state.render()
 
 
 def game_loop():
     while running:
-        state.logic()
-        state.render()
-        process_input()
+        if state.wait_for_input:
+            state.logic()
+            state.render()
+            handle_event(terminal.read())
+        else:
+            automatic_loop()
 
 
 def start():
@@ -108,14 +133,3 @@ def start():
     finally:
         print("Closing...")
         terminal.close()
-
-        # non blocking smaple:
-        # sleep_time = 1.0 / 60
-        # while running:
-        #     if terminal.has_input():
-        #         key = terminal.read()
-        #         state.handle_input(key)
-        #     state.logic()
-        #     state.render()
-        #
-        #     time.sleep(sleep_time)

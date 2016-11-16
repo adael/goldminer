@@ -2,7 +2,7 @@ from datetime import datetime
 
 from bearlibterminal import terminal
 
-from goldminer import settings, texts
+from goldminer import settings, texts, colors
 
 
 class Border:
@@ -95,8 +95,11 @@ def draw_corners(x1, y1, x2, y2, border=single_border):
     terminal.put(x1, y2, border.bottomLeft)
 
 
-def draw_window(rect_, caption):
+def draw_window(rect_, caption, bkcolor="black"):
+    current_color = terminal.state(terminal.TK_BKCOLOR)
+    terminal.bkcolor(bkcolor)
     terminal.clear_area(rect_.x, rect_.y, rect_.width, rect_.height)
+    terminal.bkcolor(current_color)
     draw_line(rect_.x + 1, rect_.y + 2, rect_.width - 2, "[U+2594]")
     draw_rect(rect_)
     terminal.print_(rect_.center_x, rect_.y + 1, "[align=center]" + caption)
@@ -200,7 +203,7 @@ def draw_actor_stats(actor):
     draw_gui_stat(actor.fighter.food, x, y, width, settings.food_colors)
 
     y += 3
-    draw_gui_stat(actor.fighter.fatigue, x, y, width, settings.food_colors)
+    draw_gui_stat(actor.fighter.fatigue, x, y, width, colors.get_bright_range(colors.brown))
 
     y += 3
     terminal.print_(x, y, "Position: {}x{}".format(actor.x, actor.y))
@@ -233,7 +236,7 @@ def draw_history(history):
     for msgtime, msg in reversed(history.messages):
         if y <= r.y:
             return
-        s = "#{} [color={}][bbox={}]{}".format(msgtime.strftime("%H:%M:%S"), color, r.width, msg)
+        s = "{} [color={}][bbox={}]{}".format(msgtime.strftime("%H:%M:%S"), color, r.width, msg)
         terminal.print_(x, y, s)
         y -= terminal.measure(s)
         color = "dark gray"
@@ -261,7 +264,7 @@ def draw_menu_option_state(state):
 
 def draw_inventory_state(state):
     terminal.color("azure")
-    draw_window(settings.gui_rect, "Inventory window")
+    draw_window(settings.gui_rect, "Inventory window", "")
 
     if state.inventory.is_empty():
         inner_width = settings.gui_rect.width - 2
