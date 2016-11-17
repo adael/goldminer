@@ -1,11 +1,23 @@
 import math
 import random
 
-from goldminer import settings, texts
+from goldminer import settings, texts, colors
 from goldminer.History import History
 from goldminer.World import Resource, Tile, WorldMap, World, Door
 from goldminer.actor import Actor, Fighter
 from goldminer.inventory import Inventory
+
+house_density = 18
+
+
+def random_four_orientation(rng, x=0, y=0):
+    r = math.radians(rng.randint(0, 4) * 90)
+    return int(round(math.cos(r))) + x, int(round(math.sin(r))) + y
+
+
+def random_eight_orientation(rng, x=0, y=0):
+    r = math.radians(rng.randint(0, 4) * 45)
+    return int(round(math.cos(r))) + x, int(round(math.sin(r))) + y
 
 
 def create_player():
@@ -29,17 +41,28 @@ def create_world():
     return world
 
 
-def create_house(seed):
+def create_house(seed, dox, doy):
     rng = random.Random(seed)
-    width = rng.randint(5, 12)
-    height = rng.randint(5, 12)
+
+    width = rng.randint(7, 21)
+    height = rng.randint(7, 17)
+
+    if dox != 0:
+        dx = width - 1 if dox > 0 else 0
+        dy = random.choice(range(1, height - 1))
+    elif doy != 0:
+        dx = random.choice(range(1, width - 1))
+        dy = height - 1 if doy > 0 else 0
+
+    print("door at:", dx, dy)
 
     house = WorldMap(width, height)
     gen = WorldGenerator(house, seed)
     gen.make_floor()
     gen.make_borders()
+    house.tile(dx, dy).door = Door(closed=False, leave=True)
 
-    return house
+    return house, dx, dy
 
 
 def degrees_to_cross_xy(degrees):
@@ -59,7 +82,7 @@ class WorldGenerator:
     def generate_complete_world(self):
         self.make_floor()
         self.make_borders()
-        self.create_houses(5)
+        self.create_houses(house_density)
         self.put_resources()
         self.put_trees()
 
@@ -90,7 +113,7 @@ class WorldGenerator:
             (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)
         ]
 
-        dx, dy = self.random_four_orientation(x, y)
+        dx, dy = random_four_orientation(self.rng, x, y)
 
         for px, py in coords:
             if not self.world_map.is_walkable(px, py):
@@ -105,7 +128,9 @@ class WorldGenerator:
         for (x, y) in locations:
             self.make_wall(x, y)
 
-    def make_wall(self, x, y, color="white"):
+    def make_wall(self, x, y, color=None):
+        if color is None:
+            color = colors.slategray
         tile = self.world_map.tile(x, y)
         tile.walkable = False
         tile.char = "#"
@@ -132,7 +157,7 @@ class WorldGenerator:
             if self.world_map.inside_map(x, y):
                 tile_coords.append((x, y))
             for z in range(random.randint(0, group_size)):
-                cx, cy = self.random_eight_orientation(x, y)
+                cx, cy = random_eight_orientation(self.rng, x, y)
                 if self.world_map.inside_map(cx, cy):
                     tile_coords.append((cx, cy))
 
@@ -143,11 +168,3 @@ class WorldGenerator:
             if not self.world_map.is_walkable(x, y):
                 return False
         return True
-
-    def random_four_orientation(self, x=0, y=0):
-        r = math.radians(self.rng.randint(0, 4) * 90)
-        return int(round(math.cos(r))) + x, int(round(math.sin(r))) + y
-
-    def random_eight_orientation(self, x=0, y=0):
-        r = math.radians(self.rng.randint(0, 4) * 45)
-        return int(round(math.cos(r))) + x, int(round(math.sin(r))) + y

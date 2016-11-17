@@ -97,3 +97,7 @@ class Rect:
 
     def __str__(self):
         return "<Rect {},{} {}x{}>".format(self.left, self.top, self.width, self.height)
+
+
+def orientation(from_x, from_y, to_x, to_y):
+    return from_x - to_x, from_y - to_y

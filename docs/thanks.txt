@@ -21,3 +21,6 @@ I would give thanks to:
 - Jeff Lait for his awesome game: Powder
   http://www.zincland.com/powder/
   http://www.roguebasin.com/index.php?title=Jeff_Lait
+
+- Codeface font directory
+  https://github.com/chrissimpkins/codeface

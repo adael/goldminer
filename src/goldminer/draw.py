@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from bearlibterminal import terminal
 
 from goldminer import settings, texts, colors
@@ -16,6 +14,8 @@ class Border:
         self.bottomLeft = bottomLeft
         self.bottomRight = bottomRight
 
+
+color_stack = []
 
 double_border = Border(
     top=0x2550,
@@ -38,6 +38,16 @@ single_border = Border(
     bottomLeft=0x2514,
     bottomRight=0x2518
 )
+
+
+def push_colors():
+    color_stack.append((terminal.state(terminal.TK_COLOR), terminal.state(terminal.TK_BKCOLOR)))
+
+
+def pop_colors():
+    (fg, bg) = color_stack.pop()
+    terminal.color(fg)
+    terminal.bkcolor(bg)
 
 
 def color_for_value(value, colors=None):
@@ -95,14 +105,15 @@ def draw_corners(x1, y1, x2, y2, border=single_border):
     terminal.put(x1, y2, border.bottomLeft)
 
 
-def draw_window(rect_, caption, bkcolor="black"):
-    current_color = terminal.state(terminal.TK_BKCOLOR)
+def draw_window(rect_, caption, color="white", bkcolor="black"):
+    push_colors()
+    terminal.color(color)
     terminal.bkcolor(bkcolor)
     terminal.clear_area(rect_.x, rect_.y, rect_.width, rect_.height)
-    terminal.bkcolor(current_color)
     draw_line(rect_.x + 1, rect_.y + 2, rect_.width - 2, "[U+2594]")
     draw_rect(rect_)
     terminal.print_(rect_.center_x, rect_.y + 1, "[align=center]" + caption)
+    pop_colors()
 
 
 def draw_select_box(control):
@@ -131,7 +142,7 @@ def draw_select_box(control):
 # PlayingState
 
 def draw_game_layout():
-    terminal.color("azure")
+    terminal.color(colors.beige)
     draw_rect(settings.screen_rect)
     draw_rect(settings.map_window_rect)
     draw_rect(settings.gui_rect)
@@ -263,8 +274,7 @@ def draw_menu_option_state(state):
 
 
 def draw_inventory_state(state):
-    terminal.color("azure")
-    draw_window(settings.gui_rect, "Inventory window", "")
+    draw_window(settings.gui_rect, "Inventory window", colors.brown_rust, colors.night)
 
     if state.inventory.is_empty():
         inner_width = settings.gui_rect.width - 2

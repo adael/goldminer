@@ -1,6 +1,6 @@
 import random
 
-from goldminer import settings, pgc, game
+from goldminer import settings, pgc, game, geom
 from goldminer.Camera import Camera
 
 
@@ -21,6 +21,7 @@ class World:
         )
         self.camera.update(self.player.x, self.player.y)
         self.room_stack = []
+        self.stored_player_position = None
 
     def inside_map(self, x, y):
         return self.world_map.inside_map(x, y)
@@ -57,7 +58,10 @@ class World:
             if tile.door.closed:
                 self.tile(dx, dy).door.open()
             else:
-                self.enter_room(dx, dy)
+                if tile.door.leave:
+                    self.leave_room()
+                else:
+                    self.enter_room(dx, dy)
 
     def actor_heal(self, actor, amount):
         actor.heal(amount)
@@ -73,11 +77,23 @@ class World:
         self.camera.update(self.player.x, self.player.y)
 
     def enter_room(self, x, y):
+        self.stored_player_position = self.player.position
+        (dox, doy) = geom.orientation(self.player.x, self.player.y, x, y)
+
+        print("Door orientation:", (dox, doy))
+
         hseed = "room_{}x{}_{}".format(x, y, self.seed)
-        house = pgc.create_house(hseed)
-        self.player.set_position(0, 0)
+        (house, door_x, door_y) = pgc.create_house(hseed, dox, doy)
+
+        self.player.set_position(door_x - dox, door_y - doy)
         new_world = World(house, self.player, hseed)
         game.get_game_state().enter_world(new_world)
+
+    def leave_room(self):
+        game.get_game_state().leave_world()
+
+    def restore_player_position(self):
+        self.player.position = self.stored_player_position
 
 
 class WorldMap:
@@ -127,10 +143,13 @@ class Resource:
 
 
 class Door:
-    def __init__(self, char="+", color="red"):
+    def __init__(self, color="red", closed=True, leave=False, char=None):
+        if char is None:
+            char = "+" if closed else "/"
         self.char = char
         self.color = color
-        self.closed = True
+        self.closed = closed
+        self.leave = leave
 
     def open(self):
         self.char = "/"

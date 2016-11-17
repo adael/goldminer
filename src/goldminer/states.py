@@ -70,6 +70,7 @@ class PlayingState(GameState):
     def leave_world(self):
         if self.worlds:
             self.worlds.pop()
+            self.world.restore_player_position()
 
 
 class MenuState(GameState):

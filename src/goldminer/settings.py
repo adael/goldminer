@@ -3,8 +3,8 @@ from bearlibterminal import terminal
 from goldminer.geom import Rect
 
 # MAP SETTINGS
-default_world_width = 512
-default_world_height = 512
+default_world_width = 60
+default_world_height = 40
 
 # GAME SETTINGS
 resizeable = False

@@ -1,0 +1,8 @@
+- Bearlibterminal (https://bitbucket.org/cfyzium/bearlibterminal)
+- Font: Proggy Square (http://www.proggyfonts.net/)
+- Colors taken from:
+    - http://htmlcolorcodes.com/color-names/
+    - http://chir.ag/projects/name-that-color/#6195ED
+
+
+Please read also thanks.txt

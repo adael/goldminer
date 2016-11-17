@@ -27,6 +27,10 @@ class Actor:
     def position(self):
         return self.x, self.y
 
+    @position.setter
+    def position(self, value):
+        self.x, self.y = value
+
     def set_position(self, x, y):
         self.x, self.y = x, y
 
