@@ -2,8 +2,9 @@ import time
 
 from bearlibterminal import terminal
 
-from goldminer import settings
+from goldminer import settings, filesave
 from goldminer.gamepad import GamePadAction
+from goldminer.pgc import create_world
 from goldminer.states import PlayingState, MenuState
 
 running = True
@@ -13,6 +14,10 @@ FPS = 30
 
 
 def can_continue():
+    return game_started() or filesave.can_load()
+
+
+def game_started():
     return 'game' in states
 
 
@@ -22,9 +27,9 @@ def set_state(new_state):
     state.show()
 
 
-def get_game_state():
+def get_game_state() -> PlayingState:
     if 'game' not in states:
-        states['game'] = PlayingState()
+        start_new_game()
     return states['game']
 
 
@@ -43,11 +48,21 @@ def show_game():
 
 
 def load_previous_game():
-    pass
+    if not game_started():
+        load()
+
+
+def load():
+    get_game_state().worlds = filesave.load_world()
+
+
+def save():
+    filesave.save_world(get_game_state().worlds)
 
 
 def start_new_game():
     states['game'] = PlayingState()
+    states['game'].enter_world(create_world())
 
 
 def end_game():

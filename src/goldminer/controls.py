@@ -16,6 +16,8 @@ class SelectBox:
         self.items = items
         self.padding_left = 2
         self.item_focused_index = 0
+        if 0 in self.items and not self.items[0].active:
+            self.item_focused_index = self.next_active_index()
         self.item_selected_index = None
         self.calculate_dimension()
 
@@ -32,12 +34,24 @@ class SelectBox:
         return self.items[self.item_focused_index]
 
     def up_item(self):
-        if self.item_focused_index > 0:
-            self.item_focused_index -= 1
+        index = self.prev_active_index()
+        if index is not None:
+            self.item_focused_index = index
 
     def down_item(self):
-        if self.item_focused_index < len(self.items) - 1:
-            self.item_focused_index += 1
+        index = self.next_active_index()
+        if index is not None:
+            self.item_focused_index = index
+
+    def prev_active_index(self):
+        for index in range(self.item_focused_index - 1, -1, -1):
+            if self.items[index].active:
+                return index
+
+    def next_active_index(self):
+        for index in range(self.item_focused_index + 1, len(self.items)):
+            if self.items[index].active:
+                return index
 
     def select_focused_item(self):
         if self.item_focused().active:

@@ -1,2 +1,4 @@
 .idea/
 *.pyc
+# save file
+.goldminer.pkl

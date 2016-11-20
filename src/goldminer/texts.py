@@ -1,10 +1,3 @@
-no_more_space = [
-    "Not enough room for this",
-    "I can carry nothing more",
-    "No, my inventory it's full",
-    "Heck, I need bigger bags"
-]
-
 im_back = [
     "I'm back!"
 ]
@@ -46,4 +39,11 @@ im_muted = [
 inventory_is_empty = [
     "You have no items",
     "The inventory is empty"
+]
+
+inventory_is_full = [
+    "Not enough room for this",
+    "I can carry nothing more",
+    "No, my inventory it's full",
+    "Heck, I need bigger bags"
 ]

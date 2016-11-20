@@ -1,10 +1,9 @@
 import random
 
-from bearlibterminal import terminal
-
 from goldminer import game, draw
-from goldminer.pgc import create_world
 from goldminer.controls import SelectBox, SelectItem
+from goldminer.gamepad import GamePadAction
+from goldminer.inventory import Inventory
 
 
 class GameState:
@@ -32,7 +31,6 @@ class PlayingState(GameState):
         super().__init__()
         random.seed(1234)
         self.worlds = []
-        self.enter_world(create_world())
         self.show_inventory = False
 
     @property
@@ -56,13 +54,7 @@ class PlayingState(GameState):
         self.wait_for_input = not self.world.player.resting
 
     def render(self):
-        terminal.clear()
-        draw.draw_game_layout()
         draw.draw_world(self.world)
-        draw.draw_actor_stats(self.world.player)
-        draw.draw_history(self.world.player.history)
-        self.world.player.history.trim()
-        terminal.refresh()
 
     def enter_world(self, world):
         self.worlds.append(world)
@@ -80,11 +72,12 @@ class MenuState(GameState):
         self.lst = SelectBox(10, 13, [
             SelectItem("Continue", active=game.can_continue()),
             SelectItem("New Game"),
+            SelectItem("", active=False),
             SelectItem("Options"),
             SelectItem("Quit Game"),
         ])
 
-    def handle_input(self, action):
+    def handle_input(self, action: GamePadAction):
         if action.is_back:
             if game.can_continue():
                 game.show_game()
@@ -104,13 +97,16 @@ class MenuState(GameState):
             elif item.label == "Options":
                 game.set_state(MenuOptionsState())
             elif item.label == "Quit Game":
+                if game.game_started():
+                    game.save()
                 game.end_game()
 
     def show(self):
         self.lst.items[0].active = game.can_continue()
+        self.lst.items[1].active = not game.can_continue()
 
     def render(self):
-        draw.draw_menu_state(self)
+        draw.draw_menu_state(self.lst)
 
 
 class MenuOptionsState(GameState):
@@ -122,24 +118,24 @@ class MenuOptionsState(GameState):
             SelectItem("Bigger"),
         ])
 
-    def handle_input(self, action):
+    def handle_input(self, action: GamePadAction):
         if action.is_back:
             game.show_menu()
         else:
             self.lst.handle_input(action)
 
     def render(self):
-        draw.draw_menu_option_state(self)
+        draw.draw_menu_option_state(self.lst)
 
 
 class InventoryState(GameState):
-    def __init__(self, inventory):
+    def __init__(self, inventory: Inventory):
         super().__init__()
         self.inventory = inventory
 
-    def handle_input(self, action):
+    def handle_input(self, action: GamePadAction):
         if action.is_back:
             game.show_game()
 
     def render(self):
-        draw.draw_inventory_state(self)
+        draw.draw_inventory_window(self.inventory)

@@ -1,6 +1,8 @@
 from bearlibterminal import terminal
 
 from goldminer import settings, texts, colors
+from goldminer.History import History
+from goldminer.inventory import Inventory
 
 
 class Border:
@@ -150,9 +152,15 @@ def draw_game_layout():
 
 
 def draw_world(world):
+    terminal.clear()
+    draw_game_layout()
     draw_world_map(world.camera, world.world_map)
     draw_world_actors(world.camera, world.actors)
     draw_world_player(world.camera, world.player)
+    draw_actor_stats(world.player)
+    draw_history(world.player.history)
+    world.player.history.trim()
+    terminal.refresh()
 
 
 def draw_world_map(camera, world_map):
@@ -175,11 +183,21 @@ def draw_world_player(camera, player):
 
 def draw_tile(tile, x, y):
     if tile.door:
-        draw_entity(tile.door, x, y)
+        draw_door(tile.door, x, y)
     elif tile.resource:
-        draw_entity(tile.resource, x, y)
+        draw_resource(tile.resource, x, y)
     else:
         draw_entity(tile, x, y)
+
+
+def draw_door(door, x, y):
+    char = "+" if door.closed else "/"
+    terminal.color(door.color)
+    terminal.put(x, y, char)
+
+
+def draw_resource(resource, x, y):
+    draw_entity(resource, x, y)
 
 
 def draw_actor(actor, x, y):
@@ -232,15 +250,23 @@ def draw_gui_stat(stat, x, y, width, colors, bkcolor="dark gray"):
     draw_progress(x, y + 1, width, stat.percent, color, bkcolor)
 
 
-def draw_ingame_inventory_items(inventory, x, y, width):
-    items = ["[color={}]{}[/color]".format(item.color, item.char) for item in inventory.items]
+def draw_ingame_inventory_items(inventory: Inventory, x: int, y: int, width: int):
+    """
+
+    :type inventory: Inventory
+    """
+    items = ["[color={}]{} [/color]".format(item.color, item.char) for item in inventory.items]
     s = "".join(items)
-    str_items = s + ("[color=white][U+0095] [/color]" * (inventory.max_size - len(items)))
+    str_items = s + ("[color=#404040]· [/color]" * (inventory.capacity - len(items)))
 
     terminal.print_(x, y, "[bbox={}]".format(width) + str_items)
 
 
-def draw_history(history):
+def draw_history(history: History):
+    """
+
+    :type history: History
+    """
     r = settings.status_rect
     x, y = r.x + 1, r.bottom - 2
     color = "white"
@@ -254,34 +280,34 @@ def draw_history(history):
 
 
 # MenuState
-def draw_menu_state(state):
+def draw_menu_state(lst):
     terminal.clear()
     caption = ".*{Gold Miner}*."
     terminal.color("yellow")
     terminal.print_(10, 10, caption)
     draw_double_line(10, 11, len(caption))
-    draw_select_box(state.lst)
+    draw_select_box(lst)
     terminal.refresh()
 
 
-def draw_menu_option_state(state):
+def draw_menu_option_state(lst):
     terminal.clear_area(30, 14, 60, 30)
     terminal.color("yellow")
     terminal.print_(30, 14, "Screen size")
     draw_double_line(30, 15, len("Screen size"))
-    draw_select_box(state.lst)
+    draw_select_box(lst)
     terminal.refresh()
 
 
-def draw_inventory_state(state):
+def draw_inventory_window(inventory: Inventory):
     draw_window(settings.gui_rect, "Inventory window", colors.brown_rust, colors.night)
 
-    if state.inventory.is_empty():
+    if inventory.is_empty:
         inner_width = settings.gui_rect.width - 2
         terminal.print_(settings.gui_rect.x + 1, settings.gui_rect.y + 3,
-                        "[bbox={}][color=teal]{}[/color]".format(inner_width, texts.inventory_is_empty()))
+                        "[bbox={}][color=teal]{}[/color]".format(inner_width, texts.inventory_is_empty))
     else:
-        draw_inventory_state_items(state.inventory.items)
+        draw_inventory_state_items(inventory.items)
 
     terminal.refresh()
 
@@ -300,7 +326,9 @@ def draw_inventory_state_items(items):
         label = "[bbox={}][color=white]{}[/color]".format(line_w, item.description)
         cy = terminal.measure(label)
 
+        terminal.color("white")
         draw_corners(line_x, line_y, line_x + item_w, line_y + item_w)
+        terminal.color(item.color)
         terminal.put(line_x + 1, line_y + 1, item.char)
         terminal.print_(text_x, text_y, label)
         line_y += max(3, cy + 1)

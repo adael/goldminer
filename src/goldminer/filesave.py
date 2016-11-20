@@ -1,15 +1,19 @@
+import os
 import pickle
 
-filename = "goldminer.pkl"
+filename = ".goldminer.pkl"
 
 
 def save_world(world):
-    with open(filename, 'wb') as output:
-        pickler = pickle.Pickler(output, -1)
+    with open(filename, 'wb') as fout:
+        pickler = pickle.Pickler(fout, -1)
         pickler.dump(world)
 
 
 def load_world():
-    with open(filename, 'r') as input:
-        world = pickle.load(input)
-    return world
+    with open(filename, 'rb') as fin:
+        return pickle.load(fin)
+
+
+def can_load():
+    return os.path.exists(filename)

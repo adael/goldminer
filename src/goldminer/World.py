@@ -1,6 +1,6 @@
 import random
 
-from goldminer import settings, pgc, game, geom
+from goldminer import settings, pgc, game, geom, texts
 from goldminer.Camera import Camera
 
 
@@ -53,15 +53,40 @@ class World:
             return
 
         tile = self.tile(dx, dy)
-
         if tile.door:
-            if tile.door.closed:
-                self.tile(dx, dy).door.open()
+            self.player_handle_door(tile, dx, dy)
+            return
+
+        if tile.resource:
+            self.player_gather_resource(tile, dx, dy)
+            return
+
+    def player_handle_door(self, tile, dx, dy):
+        if tile.door.closed:
+            tile.door.open()
+        else:
+            if tile.door.leave:
+                self.leave_room()
             else:
-                if tile.door.leave:
-                    self.leave_room()
-                else:
-                    self.enter_room(dx, dy)
+                self.enter_room(dx, dy)
+
+    def player_gather_resource(self, tile, dx, dy):
+
+        if self.player.inventory.is_full:
+            self.player.think(texts.inventory_is_full)
+            return
+
+        tile.resource.health -= 1
+        self.player.waste(tile.resource.hardness)
+        if tile.resource.health <= 0:
+            if tile.resource.drop:
+                self.player.inventory.add(tile.resource.drop)
+            if tile.resource.durability == 1:
+                tile.resource = None
+            else:
+                if tile.resource.durability > 0:
+                    tile.resource.durability -= 1
+                tile.resource.restore_health()
 
     def actor_heal(self, actor, amount):
         actor.heal(amount)
@@ -144,21 +169,25 @@ class Resource:
         self.color = color
         self.quantity = quantity
         self.walkable = walkable
+        self.hardness = 1
+        self.health = 10
+        self.max_health = self.health
+        self.drop = None
+        self.durability = 0
 
+    def restore_health(self):
+        self.max_health += 1
+        self.health = self.max_health
 
 class Door:
-    def __init__(self, color="red", closed=True, leave=False, char=None):
-        if char is None:
-            char = "+" if closed else "/"
-        self.char = char
+    def __init__(self, color="red", closed=True, leave=False):
         self.color = color
         self.closed = closed
         self.leave = leave
 
     def open(self):
-        self.char = "/"
         self.closed = False
 
     def close(self):
-        self.char = "+"
         self.closed = True
+
