@@ -25,10 +25,13 @@ You should use python 3. I didn't test it with python 2
     cd goldminer
     python3 src/main.py
     
-# Screenshot
+# Screenshots
 
 ![ingame screenshot]
-(https://i.imgsafe.org/e87b5717fe.png)
+(https://i.imgsafe.org/1eb6415a79.png)
+
+![inventory selection]
+(https://i.imgsafe.org/1eb651012e.png)
 
 # Credits and acknowledgments
 
