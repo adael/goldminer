@@ -26,6 +26,13 @@ class Camera:
         x = max(0, min(self.map_width - self.rect.width + 1, x))
         y = max(0, min(self.map_height - self.rect.height + 1, y))
 
+        # center the camera if the map is smaller than the viewport
+        if self.map_width < self.rect.width:
+            self.offset_x = int(round((self.rect.width - self.map_width) / 2, 2))
+
+        if self.map_height < self.rect.height:
+            self.offset_y = int(round((self.rect.height - self.map_height) / 2, 2))
+
         self.rect.set_position(x, y)
 
     def map_to_camera(self, x, y):

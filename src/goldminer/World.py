@@ -107,7 +107,11 @@ class WorldMap:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def tile(self, x, y):
-        return self.tiles[x][y]
+        try:
+            return self.tiles[x][y]
+        except IndexError:
+            print("Out of range: ", x, y)
+            raise
 
     def set_tile(self, x, y, tile):
         self.tiles[x][y] = tile

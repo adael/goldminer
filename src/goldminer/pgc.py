@@ -5,6 +5,7 @@ from goldminer import settings, texts, colors
 from goldminer.History import History
 from goldminer.World import Resource, Tile, WorldMap, World, Door
 from goldminer.actor import Actor, Fighter
+from goldminer.geom import Rect, Direction
 from goldminer.inventory import Inventory
 
 house_density = 18
@@ -18,6 +19,26 @@ def random_four_orientation(rng, x=0, y=0):
 def random_eight_orientation(rng, x=0, y=0):
     r = math.radians(rng.randint(0, 4) * 45)
     return int(round(math.cos(r))) + x, int(round(math.sin(r))) + y
+
+
+def area_is_clear(world_map, area):
+    for x, y in area:
+        if not world_map.is_walkable(x, y):
+            return False
+    return True
+
+
+def find_empty_spaces(world_map, width, height, threshold=5):
+    spaces = []
+    for y in range(0, world_map.height, threshold):
+        for x in range(0, world_map.width, threshold):
+            rect = Rect(x, y, width, height)
+            if area_is_clear(world_map, rect):
+                spaces.append(rect.values)
+            rect.swap_size()
+            if area_is_clear(world_map, rect):
+                spaces.append(rect.values)
+    return spaces
 
 
 def create_player():
@@ -54,8 +75,6 @@ def create_house(seed, dox, doy):
         dx = random.choice(range(1, width - 1))
         dy = height - 1 if doy > 0 else 0
 
-    print("door at:", dx, dy)
-
     house = WorldMap(width, height)
     gen = WorldGenerator(house, seed)
     gen.make_floor()
@@ -82,9 +101,12 @@ class WorldGenerator:
     def generate_complete_world(self):
         self.make_floor()
         self.make_borders()
-        self.create_houses(house_density)
-        self.put_resources()
-        self.put_trees()
+        # self.create_house(Rect(10, 10, 3, 3), 1, 0)
+        # self.create_houses(house_density)
+        self.generate_street_side(10, 10, 4, Direction.down, Direction.right)
+        self.generate_street_side(16, 10, 4, Direction.down, Direction.left)
+        # self.put_resources()
+        # self.put_trees()
 
     def random_position(self):
         return self.rng.randint(0, self.world_map.width), self.rng.randint(0, self.world_map.height)
@@ -104,28 +126,17 @@ class WorldGenerator:
     def create_houses(self, amount):
         for _ in range(amount):
             x, y = self.random_position()
-            self.create_house(x, y)
+            area = Rect(x - 1, y - 1, 3, 3)
+            if area_is_clear(self.world_map, area):
+                dx, dy = random_four_orientation(self.rng)
+                self.create_house(area, dx, dy)
 
-    def create_house(self, x, y):
-        coords = [
-            (x - 1, y - 1), (x, y - 1), (x + 1, y - 1),
-            (x - 1, y), (x, y), (x + 1, y),
-            (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)
-        ]
-
-        dx, dy = random_four_orientation(self.rng, x, y)
-
-        for px, py in coords:
-            if not self.world_map.is_walkable(px, py):
-                return
-
-        for px, py in coords:
-            self.make_wall(px, py)
-
-        self.world_map.tile(dx, dy).door = Door()
+    def create_house(self, area, dx, dy):
+        self.make_walls(area)
+        self.world_map.tile(area.x + dx + 1, area.y + + dy + 1).door = Door()
 
     def make_walls(self, locations):
-        for (x, y) in locations:
+        for x, y in locations:
             self.make_wall(x, y)
 
     def make_wall(self, x, y, color=None):
@@ -163,8 +174,23 @@ class WorldGenerator:
 
         return tile_coords
 
-    def validate_coords(self, coords):
-        for x, y in coords:
-            if not self.world_map.is_walkable(x, y):
-                return False
-        return True
+    def generate_street_side(self, x: int, y: int, num: int,
+                             street_direction: Direction, doors_direction: Direction,
+                             room_width=3, room_height=3, margin=1):
+
+        if street_direction.is_vertical:
+            area = Rect(x, y, room_width + margin, num * (room_height + margin))
+        else:
+            area = Rect(x, y, num * (room_width + margin), room_height + margin)
+
+        spaces = find_empty_spaces(self.world_map, area.width, area.height)
+        (x, y, w, h) = self.rng.choice(spaces)
+
+        dx, dy = doors_direction.as_vector()
+
+        if street_direction.is_vertical:
+            for n in range(0, num):
+                self.create_house(Rect(area.x, area.y + (n * (room_height + margin)), room_width, room_height), dx, dy)
+        else:
+            for n in range(0, num):
+                self.create_house(Rect(area.x + (n * (room_width + margin)), area.y, room_width, room_height), dx, dy)

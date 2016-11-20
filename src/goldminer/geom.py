@@ -1,3 +1,6 @@
+import enum
+
+
 class Rect:
     @classmethod
     def from_points(cls, x1, y1, x2, y2):
@@ -14,9 +17,12 @@ class Rect:
         self.h = h
 
     def __iter__(self):
-        for y in range(self.y, self.h):
-            for x in range(self.x, self.width):
+        for y in range(self.y, self.y + self.h):
+            for x in range(self.x, self.x + self.w):
                 yield x, y
+
+    def __str__(self):
+        return "<Rect {},{} {}x{}>".format(self.left, self.top, self.width, self.height)
 
     def set(self, x, y, w, h):
         self.set_position(x, y)
@@ -29,6 +35,11 @@ class Rect:
     def set_size(self, w, h):
         self.w = w
         self.h = h
+
+    def swap_size(self):
+        tmp = self.w
+        self.w = self.h
+        self.h = tmp
 
     @property
     def position(self):
@@ -70,6 +81,10 @@ class Rect:
     def center_y(self):
         return self.y + int(self.h / 2)
 
+    @property
+    def values(self):
+        return self.x, self.y, self.w, self.h
+
     def contains(self, x, y):
         return (self.x <= x <= self.right and
                 self.y <= y <= self.bottom)
@@ -84,20 +99,39 @@ class Rect:
     def bottom_right(self):
         return self.right, self.bottom
 
-    def expanded_by(self, n):
-        """Return a rectangle with extended borders.
-
-        Create a new rectangle that is wider and taller than the
-        immediate one. All sides are extended by "n" points.
+    def expand_by(self, n: int):
+        """
+        Expands the rectangle by "n" points
+        :param n: int
         """
         self.x -= n
         self.y -= n
         self.w += n
         self.h += n
 
-    def __str__(self):
-        return "<Rect {},{} {}x{}>".format(self.left, self.top, self.width, self.height)
-
 
 def orientation(from_x, from_y, to_x, to_y):
     return from_x - to_x, from_y - to_y
+
+
+class Direction(enum.IntEnum):
+    left = 180
+    up = 90
+    right = 0
+    down = 270
+
+    @property
+    def is_horizontal(self):
+        return self in (Direction.left, Direction.right)
+
+    @property
+    def is_vertical(self):
+        return self in (Direction.down, Direction.up)
+
+    def as_vector(self):
+        return {
+            Direction.left: (-1, 0),
+            Direction.up: (0, -1),
+            Direction.right: (1, 0),
+            Direction.down: (0, 1),
+        }.get(self)
