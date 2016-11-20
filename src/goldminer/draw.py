@@ -299,36 +299,53 @@ def draw_menu_option_state(lst):
     terminal.refresh()
 
 
-def draw_inventory_window(inventory: Inventory):
-    draw_window(settings.gui_rect, "Inventory window", colors.brown_rust, colors.night)
+def draw_inventory_window(inventory: Inventory, selected_index):
+    draw_window(settings.gui_rect, "Inventory window", colors.darkslategray, colors.night)
 
     if inventory.is_empty:
         inner_width = settings.gui_rect.width - 2
         terminal.print_(settings.gui_rect.x + 1, settings.gui_rect.y + 3,
                         "[bbox={}][color=teal]{}[/color]".format(inner_width, texts.inventory_is_empty))
     else:
-        draw_inventory_state_items(inventory.items)
+        draw_inventory_state_items(inventory.items, selected_index)
 
     terminal.refresh()
 
 
 # Inventory state
-def draw_inventory_state_items(items):
+def draw_inventory_state_items(items, selected_index):
     line_x = settings.gui_rect.x + 1
     line_y = settings.gui_rect.y + 3
     line_w = settings.gui_rect.width - 3
     item_w = 2
+    item_h = 3
 
+    index = 0
     for item in items:
         text_x = line_x + 4
         text_y = line_y + 1
-
+        bkcolor = colors.darkslategray if index == selected_index else colors.night
         label = "[bbox={}][color=white]{}[/color]".format(line_w, item.description)
         cy = terminal.measure(label)
 
+        # draw icon
+        terminal.bkcolor(colors.night)
         terminal.color("white")
         draw_corners(line_x, line_y, line_x + item_w, line_y + item_w)
         terminal.color(item.color)
         terminal.put(line_x + 1, line_y + 1, item.char)
+
+        # draw highlight
+        terminal.bkcolor(bkcolor)
+        terminal.clear_area(text_x, line_y, line_w - 4, item_h)
+
+        # draw text
         terminal.print_(text_x, text_y, label)
+
+        # restore background color
+        terminal.bkcolor("black")
+
+        # calculations
         line_y += max(3, cy + 1)
+        index += 1
+

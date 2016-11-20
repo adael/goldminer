@@ -132,10 +132,23 @@ class InventoryState(GameState):
     def __init__(self, inventory: Inventory):
         super().__init__()
         self.inventory = inventory
+        self.selected_index = 0
 
     def handle_input(self, action: GamePadAction):
         if action.is_back:
             game.show_game()
+        elif action.is_up:
+            self.up()
+        elif action.is_down:
+            self.down()
+
+    def up(self):
+        if self.selected_index > 0:
+            self.selected_index -= 1
+
+    def down(self):
+        if self.selected_index < len(self.inventory.items) - 1:
+            self.selected_index += 1
 
     def render(self):
-        draw.draw_inventory_window(self.inventory)
+        draw.draw_inventory_window(self.inventory, self.selected_index)
