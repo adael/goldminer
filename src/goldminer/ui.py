@@ -1,6 +1,3 @@
-from bearlibterminal import terminal
-
-
 class SelectItem:
     def __init__(self, label, active=True):
         self.label = label
@@ -11,15 +8,11 @@ class SelectBox:
     def __init__(self, x, y, items):
         self.x = x
         self.y = y
-        self.w = None
-        self.h = None
         self.items = items
-        self.padding_left = 2
         self.item_focused_index = 0
         if 0 in self.items and not self.items[0].active:
             self.item_focused_index = self.next_active_index()
         self.item_selected_index = None
-        self.calculate_dimension()
 
     def is_selected(self):
         return self.item_selected_index is not None
@@ -56,20 +49,6 @@ class SelectBox:
     def select_focused_item(self):
         if self.item_focused().active:
             self.item_selected_index = self.item_focused_index
-
-    def calculate_dimension(self):
-        w = 3
-        h = 3
-
-        for item in self.items:
-            w = max(len(item.label), w)
-
-        for item in self.items:
-            box = "[bbox={}]".format(w)
-            h = max(terminal.measure(box + item.label), h)
-
-        self.w = w + self.padding_left
-        self.h = h
 
     def handle_input(self, action):
         if action.is_up:

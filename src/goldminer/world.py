@@ -2,6 +2,7 @@ import random
 
 from goldminer import settings, pgc, game, geom, texts
 from goldminer.Camera import Camera
+from goldminer.actor import Inventory
 
 
 class World:
@@ -20,7 +21,6 @@ class World:
             offset_y=settings.map_rect.y
         )
         self.camera.update(self.player.x, self.player.y)
-        self.room_stack = []
         self.stored_player_position = None
 
     def inside_map(self, x, y):
@@ -71,22 +71,23 @@ class World:
                 self.enter_room(dx, dy)
 
     def player_gather_resource(self, tile, dx, dy):
-
         if self.player.inventory.is_full:
             self.player.think(texts.inventory_is_full)
             return
 
         tile.resource.health -= 1
         self.player.waste(tile.resource.hardness)
+
         if tile.resource.health <= 0:
-            if tile.resource.drop:
-                self.player.inventory.add(tile.resource.drop)
-            if tile.resource.durability == 1:
-                tile.resource = None
-            else:
-                if tile.resource.durability > 0:
-                    tile.resource.durability -= 1
+            if tile.resource.item:
+                self.player.inventory.add(tile.resource.item)
+
+            if tile.resource.quantity > 0:
+                tile.resource.quantity -= 1
                 tile.resource.restore_health()
+
+        if tile.resource.depleted:
+            tile.resource = None
 
     def actor_heal(self, actor, amount):
         actor.heal(amount)
@@ -126,7 +127,6 @@ class WorldMap:
         self.width = width
         self.height = height
         self.tiles = []
-        self.resources = []
 
     def inside_map(self, x, y):
         return 0 <= x < self.width and 0 <= y < self.height
@@ -152,6 +152,7 @@ class Tile:
         self.walkable = walkable
         self.resource = None
         self.door = None
+        self.chest = None
 
     def is_walkable(self):
         if self.door and self.door.closed:
@@ -164,20 +165,39 @@ class Tile:
 
 
 class Resource:
-    def __init__(self, char, color, quantity, walkable=False):
+    """
+    Represents a recollectable resource like food, wood, ores, etc.
+    Attributes:
+        char (str):
+        color (str):
+        item (Item): the item that you get when the resource is gathered
+        quantity (int): number of items you can gather before it depletes
+        hardness (int): the force that needs to be applied to gather the resource. It affects to energy wasted
+        health (int): number of hits to get a drop
+        max_health (int): the reference value for restore health
+        walkable (bool): if the resource can be walked through
+        restore_penalty (int): each time an item is gathered from the resource, it'll cost more to get the next.
+    """
+
+    def __init__(self, char, color, item=None, quantity=1, hardness=1, durability=1, health=10, walkable=False):
         self.char = char
         self.color = color
         self.quantity = quantity
         self.walkable = walkable
-        self.hardness = 1
-        self.health = 10
+        self.health = health
         self.max_health = self.health
-        self.drop = None
-        self.durability = 0
+        self.hardness = hardness
+        self.item = item
+        self.restore_penalty = 2
+
+    @property
+    def depleted(self):
+        return self.quantity <= 0
 
     def restore_health(self):
-        self.max_health += 1
+        self.max_health += self.restore_penalty
         self.health = self.max_health
+
 
 class Door:
     def __init__(self, color="red", closed=True, leave=False):
@@ -191,3 +211,9 @@ class Door:
     def close(self):
         self.closed = True
 
+
+class Container:
+    def __init__(self, color="red", capacity=8):
+        self.char = "~"
+        self.color = color
+        self.inventory = Inventory(capacity)

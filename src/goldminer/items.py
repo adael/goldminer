@@ -1,5 +1,13 @@
 from goldminer import colors
-from goldminer.inventory import Item
+
+
+class Item:
+    def __init__(self, char, color, description, effect=None):
+        self.char = char
+        self.color = color
+        self.description = description
+        self.effect = effect
+
 
 stone_flint = Item("*", "gray", "A flint stone")
 stone_chert = Item("*", colors.steelblue, "A gray chert rock")

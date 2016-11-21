@@ -1,8 +1,8 @@
 import math
 import random
+from datetime import datetime
 
 from goldminer import texts
-from goldminer.Stat import Stat
 
 
 class Actor:
@@ -159,3 +159,87 @@ class Fighter:
         if other.defense < self.damage:
             other.take_damage(self.damage)
         self.waste()
+
+
+class Inventory:
+    def __init__(self, owner, capacity=4):
+        self.owner = owner
+        self.capacity = capacity
+        self.items = []
+
+    def __iter__(self):
+        return iter(self.items)
+
+    @property
+    def is_full(self):
+        return len(self.items) >= self.capacity
+
+    @property
+    def is_empty(self):
+        return False if self.items else True
+
+    def add(self, item):
+        self.items.append(item)
+
+
+class History:
+    def __init__(self):
+        self.messages = []
+
+    def insert(self, msg):
+        self.messages.append((datetime.now(), msg))
+
+    def write(self, msg, color):
+        msg = random.choice(msg) if isinstance(msg, list) else msg
+        txt = "[color={}]{}[/color]".format(color, msg)
+        self.insert(txt)
+
+    def write_self(self, actor, verb, msg, msg_color=None):
+        if not msg_color:
+            msg_color = actor.color
+        self.write_ex("I", actor.color, verb, actor.color, msg, msg_color)
+
+    def write_action(self, actor, verb, msg, msg_color="white"):
+        self.write_ex(actor.name, actor.color, verb, actor.color, msg, msg_color)
+
+    def write_ex(self, who, who_color, verb, verb_color, msg, msg_color):
+        verb = random.choice(verb) if isinstance(verb, list) else verb
+        msg = random.choice(msg) if isinstance(msg, list) else msg
+
+        txt = "[color={}]{}[/color] ".format(who_color, who) + \
+              "[color={}]{}[/color]: ".format(verb_color, verb) + \
+              "[color={}]{}[/color]".format(msg_color, msg)
+
+        self.insert(txt)
+
+    def clear(self):
+        self.messages.clear()
+
+    def trim(self):
+        del self.messages[:-100]
+
+
+class Stat:
+    def __init__(self, label, value, max_value=None):
+        if max_value is None:
+            max_value = value
+
+        self.label = label
+        self._value = value
+        self.max_value = max_value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = min(self.max_value, max(0, value))
+
+    @property
+    def percent(self):
+        return int(round(self._value * 100 / self.max_value, 0))
+
+    @property
+    def size_for(self, width):
+        return int(self.percent * width / 100)

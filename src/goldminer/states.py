@@ -1,9 +1,9 @@
 import random
 
 from goldminer import game, draw
-from goldminer.controls import SelectBox, SelectItem
+from goldminer.actor import Inventory
 from goldminer.gamepad import GamePadAction
-from goldminer.inventory import Inventory
+from goldminer.ui import SelectBox, SelectItem
 
 
 class GameState:
@@ -141,6 +141,10 @@ class InventoryState(GameState):
             self.up()
         elif action.is_down:
             self.down()
+        elif action.is_a:
+            pass
+        elif action.is_b:
+            pass
 
     def up(self):
         if self.selected_index > 0:

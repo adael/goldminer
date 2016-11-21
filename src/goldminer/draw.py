@@ -1,8 +1,7 @@
 from bearlibterminal import terminal
 
 from goldminer import settings, texts, colors
-from goldminer.History import History
-from goldminer.inventory import Inventory
+from goldminer.actor import Inventory, History
 
 
 class Border:
@@ -119,26 +118,43 @@ def draw_window(rect_, caption, color="white", bkcolor="black"):
 
 
 def draw_select_box(control):
-    terminal.clear_area(control.x, control.y, control.w, control.h)
+    padding_left = 2
+    w, h = calculate_select_box_dimension(control)
+    w += padding_left
+
+    terminal.clear_area(control.x, control.y, w, h)
     index = 0
     y = 0
     for item in control.items:
-
         color = "white"
         if item.active and control.item_focused_index == index:
             color = "yellow"
         elif not item.active:
             color = "gray"
 
-        box = "[bbox={}]".format(control.w - control.padding_left)
+        box = "[bbox={}]".format(w - padding_left)
         height = terminal.measure(box + item.label)
         terminal.color(color)
         terminal.print_(control.x + 2, control.y + y, box + item.label)
         if index == control.item_focused_index:
-            terminal.print_(control.x, control.y + y, "[color=lightblue]>")
+            terminal.color(color)
+            terminal.put(control.x, control.y + y, ">")
 
         y += height
         index += 1
+
+
+def calculate_select_box_dimension(ctrl):
+    w, h = 3, 3
+
+    for item in ctrl.items:
+        w = max(len(item.label), w)
+
+    for item in ctrl.items:
+        box = "[bbox={}]".format(w)
+        h = max(terminal.measure(box + item.label), h)
+
+    return w, h
 
 
 # PlayingState
@@ -186,6 +202,8 @@ def draw_tile(tile, x, y):
         draw_door(tile.door, x, y)
     elif tile.resource:
         draw_resource(tile.resource, x, y)
+    elif tile.chest:
+        draw_chest(tile.chest, x, y)
     else:
         draw_entity(tile, x, y)
 
@@ -206,6 +224,10 @@ def draw_actor(actor, x, y):
 
 def draw_player(player, x, y):
     draw_entity(player, x, y)
+
+
+def draw_chest(chest, x, y):
+    draw_entity(chest, x, y)
 
 
 def draw_entity(entity, x, y):
@@ -241,7 +263,7 @@ def draw_actor_stats(actor):
     terminal.color("#AA6939")
     terminal.print_(x, y, "Inventory:")
     draw_double_line(x, y + 1, width)
-    draw_ingame_inventory_items(actor.inventory, x, y + 3, width)
+    draw_mini_inventory(actor.inventory, x, y + 3, width)
 
 
 def draw_gui_stat(stat, x, y, width, colors, bkcolor="dark gray"):
@@ -250,10 +272,9 @@ def draw_gui_stat(stat, x, y, width, colors, bkcolor="dark gray"):
     draw_progress(x, y + 1, width, stat.percent, color, bkcolor)
 
 
-def draw_ingame_inventory_items(inventory: Inventory, x: int, y: int, width: int):
+def draw_mini_inventory(inventory: Inventory, x: int, y: int, width: int):
     """
-
-    :type inventory: Inventory
+    It draws the in-game mini-inventory
     """
     items = ["[color={}]{} [/color]".format(item.color, item.char) for item in inventory.items]
     s = "".join(items)
@@ -263,10 +284,6 @@ def draw_ingame_inventory_items(inventory: Inventory, x: int, y: int, width: int
 
 
 def draw_history(history: History):
-    """
-
-    :type history: History
-    """
     r = settings.status_rect
     x, y = r.x + 1, r.bottom - 2
     color = "white"
@@ -324,7 +341,7 @@ def draw_inventory_state_items(items, selected_index):
     for item in items:
         text_x = line_x + 4
         text_y = line_y + 1
-        bkcolor = colors.darkslategray if index == selected_index else colors.night
+        bk_color = colors.darkslategray if index == selected_index else colors.night
         label = "[bbox={}][color=white]{}[/color]".format(line_w, item.description)
         cy = terminal.measure(label)
 
@@ -336,7 +353,7 @@ def draw_inventory_state_items(items, selected_index):
         terminal.put(line_x + 1, line_y + 1, item.char)
 
         # draw highlight
-        terminal.bkcolor(bkcolor)
+        terminal.bkcolor(bk_color)
         terminal.clear_area(text_x, line_y, line_w - 4, item_h)
 
         # draw text
@@ -348,4 +365,3 @@ def draw_inventory_state_items(items, selected_index):
         # calculations
         line_y += max(3, cy + 1)
         index += 1
-

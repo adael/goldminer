@@ -59,7 +59,7 @@ def key_to_action(key):
         return GamePad.right
     elif key in (terminal.TK_A, terminal.TK_SPACE):
         return GamePad.a
-    elif key in (terminal.TK_B,):
+    elif key in (terminal.TK_S,):
         return GamePad.b
     elif key in (terminal.TK_Z,):
         return GamePad.z
