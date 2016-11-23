@@ -178,6 +178,15 @@ class Inventory:
     def is_empty(self):
         return False if self.items else True
 
+    def count(self):
+        return len(self.items)
+
+    def has(self, index):
+        return len(self.items) > index
+
+    def get(self, index):
+        return self.items[index]
+
     def add(self, item):
         self.items.append(item)
 

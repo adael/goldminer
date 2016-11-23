@@ -3,17 +3,17 @@ import random
 from goldminer import game, draw
 from goldminer.actor import Inventory
 from goldminer.gamepad import GamePadAction
-from goldminer.ui import SelectBox, SelectItem
+from goldminer.ui import SelectBox, SelectItem, Separator
 
 
 class GameState:
     def __init__(self):
-        self.wait_for_input = True
+        self.automatic_mode = False
 
-    def show(self):
+    def enter(self):
         pass
 
-    def hide(self):
+    def leave(self):
         pass
 
     def logic(self):
@@ -26,50 +26,38 @@ class GameState:
         pass
 
 
-class PlayingState(GameState):
+class StateManager:
     def __init__(self):
-        super().__init__()
-        random.seed(1234)
-        self.worlds = []
-        self.show_inventory = False
+        self.states = []
 
     @property
-    def world(self):
-        return self.worlds[-1]
+    def current_state(self):
+        if self.states:
+            return self.states[-1]
 
-    def handle_input(self, action):
-        if action.is_back:
-            game.show_menu()
-            return
+    def enter_state(self, state):
+        self.states.append(state)
+        state.enter()
 
-        if not self.world.player.dead and not self.world.player.resting:
-            if action.is_lb:
-                game.set_state(InventoryState(self.world.player.inventory))
-            elif action.is_movement:
-                (x, y) = action.movement
-                self.world.player_move(x, y)
+    def leave_state(self):
+        if len(self.states) > 1:
+            state = self.states.pop()
+            state.leave()
+        else:
+            raise Exception("It's the last state")
 
-    def logic(self):
-        self.world.logic()
-        self.wait_for_input = not self.world.player.resting
+    def clear_states(self):
+        self.states.clear()
 
-    def render(self):
-        draw.draw_world(self.world)
-
-    def enter_world(self, world):
-        self.worlds.append(world)
-
-    def leave_world(self):
-        if self.worlds:
-            self.worlds.pop()
-            self.world.restore_player_position()
+    def replace_states(self, state):
+        self.clear_states()
+        self.enter_state(state)
 
 
 class MenuState(GameState):
     def __init__(self):
         super().__init__()
-        self.selected_index = 0
-        self.lst = SelectBox(10, 13, [
+        self.lst = SelectBox([
             SelectItem("Continue", active=game.can_continue()),
             SelectItem("New Game"),
             SelectItem("", active=False),
@@ -95,24 +83,63 @@ class MenuState(GameState):
                 game.start_new_game()
                 game.show_game()
             elif item.label == "Options":
-                game.set_state(MenuOptionsState())
+                game.enter_state(MenuOptionsState())
             elif item.label == "Quit Game":
                 if game.game_started():
                     game.save()
                 game.end_game()
 
-    def show(self):
+    def enter(self):
         self.lst.items[0].active = game.can_continue()
-        self.lst.items[1].active = not game.can_continue()
+        # self.lst.items[1].active = not game.can_continue()
 
     def render(self):
         draw.draw_menu_state(self.lst)
 
 
+class PlayingState(GameState):
+    def __init__(self):
+        super().__init__()
+        random.seed(1234)
+        self.worlds = []
+        self.show_inventory = False
+
+    @property
+    def world(self):
+        return self.worlds[-1]
+
+    def handle_input(self, action):
+        if action.is_back:
+            game.show_menu()
+            return
+
+        if not self.world.player.dead and not self.world.player.resting:
+            if action.is_lb:
+                game.enter_state(InventoryState(self.world.player.inventory))
+            elif action.is_movement:
+                (x, y) = action.movement
+                self.world.player_move(x, y)
+
+    def logic(self):
+        self.world.logic()
+        self.wait_for_input = not self.world.player.resting
+
+    def render(self):
+        draw.draw_world(self.world)
+
+    def enter_world(self, world):
+        self.worlds.append(world)
+
+    def leave_world(self):
+        if self.worlds:
+            self.worlds.pop()
+            self.world.restore_player_position()
+
+
 class MenuOptionsState(GameState):
     def __init__(self):
         super().__init__()
-        self.lst = SelectBox(30, 16, [
+        self.lst = SelectBox([
             SelectItem("Normal"),
             SelectItem("Big"),
             SelectItem("Bigger"),
@@ -134,6 +161,11 @@ class InventoryState(GameState):
         self.inventory = inventory
         self.selected_index = 0
 
+    @property
+    def selected_item(self):
+        if self.inventory.has(self.selected_index):
+            return self.inventory.get(self.selected_index)
+
     def handle_input(self, action: GamePadAction):
         if action.is_back:
             game.show_game()
@@ -142,7 +174,9 @@ class InventoryState(GameState):
         elif action.is_down:
             self.down()
         elif action.is_a:
-            pass
+            item = self.selected_item
+            if item:
+                game.enter_state(ViewItemState(self.selected_item))
         elif action.is_b:
             pass
 
@@ -156,3 +190,29 @@ class InventoryState(GameState):
 
     def render(self):
         draw.draw_inventory_window(self.inventory, self.selected_index)
+
+
+class ViewItemState(GameState):
+    def __init__(self, item):
+        super().__init__()
+        self.item = item
+        self.lst = SelectBox([
+            SelectItem("Examine"),
+            SelectItem("Study"),
+            SelectItem("Drop"),
+            Separator(),
+            SelectItem("Build", active=False),
+            SelectItem("Use", active=False),
+            SelectItem("Eat", active=False),
+            SelectItem("Deconstruct", active=False),
+            SelectItem("Throw", active=False),
+        ])
+
+    def handle_input(self, action: GamePadAction):
+        if action.is_back:
+            game.leave_state()
+        else:
+            self.lst.handle_input(action)
+
+    def render(self):
+        draw.draw_view_item_window(self.lst, self.item)

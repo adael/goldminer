@@ -2,6 +2,8 @@ from bearlibterminal import terminal
 
 from goldminer import settings, texts, colors
 from goldminer.actor import Inventory, History
+from goldminer.geom import Rect
+from goldminer.items import Item
 
 
 class Border:
@@ -117,14 +119,14 @@ def draw_window(rect_, caption, color="white", bkcolor="black"):
     pop_colors()
 
 
-def draw_select_box(control):
+def draw_select_box(control, x, y):
     padding_left = 2
     w, h = calculate_select_box_dimension(control)
     w += padding_left
 
-    terminal.clear_area(control.x, control.y, w, h)
+    terminal.clear_area(x, y, w, h)
     index = 0
-    y = 0
+    py = 0
     for item in control.items:
         color = "white"
         if item.active and control.item_focused_index == index:
@@ -135,12 +137,12 @@ def draw_select_box(control):
         box = "[bbox={}]".format(w - padding_left)
         height = terminal.measure(box + item.label)
         terminal.color(color)
-        terminal.print_(control.x + 2, control.y + y, box + item.label)
+        terminal.print_(x + 2, y + py, box + item.label)
         if index == control.item_focused_index:
             terminal.color(color)
-            terminal.put(control.x, control.y + y, ">")
+            terminal.put(x, y + py, ">")
 
-        y += height
+        py += height
         index += 1
 
 
@@ -303,7 +305,7 @@ def draw_menu_state(lst):
     terminal.color("yellow")
     terminal.print_(10, 10, caption)
     draw_double_line(10, 11, len(caption))
-    draw_select_box(lst)
+    draw_select_box(lst, 10, 13)
     terminal.refresh()
 
 
@@ -312,12 +314,12 @@ def draw_menu_option_state(lst):
     terminal.color("yellow")
     terminal.print_(30, 14, "Screen size")
     draw_double_line(30, 15, len("Screen size"))
-    draw_select_box(lst)
+    draw_select_box(lst, 30, 16)
     terminal.refresh()
 
 
 def draw_inventory_window(inventory: Inventory, selected_index):
-    draw_window(settings.gui_rect, "Inventory window", colors.darkslategray, colors.night)
+    draw_window(settings.gui_rect, "Inventory window", colors.inventory_color, colors.inventory_bk_color)
 
     if inventory.is_empty:
         inner_width = settings.gui_rect.width - 2
@@ -326,6 +328,13 @@ def draw_inventory_window(inventory: Inventory, selected_index):
     else:
         draw_inventory_state_items(inventory.items, selected_index)
 
+    terminal.refresh()
+
+
+def draw_view_item_window(lst, item: Item):
+    rect = Rect.from_rect(settings.gui_rect)
+    draw_window(rect, item.description, colors.inventory_color, colors.inventory_bk_color)
+    draw_select_box(lst, rect.x + 1, rect.y + 3)
     terminal.refresh()
 
 

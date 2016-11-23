@@ -1674,6 +1674,10 @@ night = "#0C090A"
 oakbrown = "#806517"
 platinum = "#E5E4E2"
 
+# Picked colors
+inventory_color = darkslategray
+inventory_bk_color = night
+
 
 def get_bright_range(color):
     return ["darkest " + color, "darker " + color, "dark " + color,

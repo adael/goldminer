@@ -4,10 +4,14 @@ class SelectItem:
         self.active = active
 
 
+class Separator:
+    def __init__(self):
+        self.label = ""
+        self.active = False
+
+
 class SelectBox:
-    def __init__(self, x, y, items):
-        self.x = x
-        self.y = y
+    def __init__(self, items):
         self.items = items
         self.item_focused_index = 0
         if 0 in self.items and not self.items[0].active:

@@ -5,12 +5,12 @@ from bearlibterminal import terminal
 from goldminer import settings, filesave
 from goldminer.gamepad import GamePadAction
 from goldminer.pgc import create_world
-from goldminer.states import PlayingState, MenuState
+from goldminer.states import PlayingState, MenuState, StateManager
 
 running = True
-state = None
-states = {}
 FPS = 30
+manager = StateManager()
+running_states = {}
 
 
 def can_continue():
@@ -18,33 +18,41 @@ def can_continue():
 
 
 def game_started():
-    return 'game' in states
+    return 'game' in running_states
 
 
-def set_state(new_state):
-    global state
-    state = new_state
-    state.show()
+def enter_state(new_state):
+    manager.enter_state(new_state)
+
+
+def leave_state():
+    manager.leave_state()
 
 
 def get_game_state() -> PlayingState:
-    if 'game' not in states:
+    if 'game' not in running_states:
         start_new_game()
-    return states['game']
+    return running_states['game']
 
 
-def get_menu_state():
-    if 'menu' not in states:
-        states['menu'] = MenuState()
-    return states['menu']
+def start_new_game():
+    state = PlayingState()
+    state.enter_world(create_world())
+    running_states['game'] = state
+
+
+def get_menu_state() -> MenuState:
+    if 'menu' not in running_states:
+        running_states['menu'] = MenuState()
+    return running_states['menu']
 
 
 def show_menu():
-    set_state(get_menu_state())
+    manager.replace_states(get_menu_state())
 
 
 def show_game():
-    set_state(get_game_state())
+    manager.replace_states(get_game_state())
 
 
 def load_previous_game():
@@ -60,60 +68,43 @@ def save():
     filesave.save_world(get_game_state().worlds)
 
 
-def start_new_game():
-    states['game'] = PlayingState()
-    states['game'].enter_world(create_world())
-
-
 def end_game():
-    global running
-    running = False
+    manager.clear_states()
 
 
-def handle_event(key):
+def convert_to_action(key):
     if key == terminal.TK_RESIZED:
         settings.update()
-        return
     elif key == terminal.TK_CLOSE:
         end_game()
-        return
 
-    action = GamePadAction(key)
-    state.handle_input(action)
+    return GamePadAction(key)
+
+
+def game_loop():
+    while manager.current_state:
+        if manager.current_state.automatic_mode:
+            automatic_loop()
+        else:
+            manager.current_state.logic()
+            manager.current_state.render()
+            manager.current_state.handle_input(convert_to_action(terminal.read()))
 
 
 def automatic_loop():
     ticks = 0
-    while not state.wait_for_input:
+    while manager.current_state.automatic_mode:
         if ticks % FPS == 0:
-            state.logic()
-            state.render()
+            manager.current_state.logic()
+            manager.current_state.render()
             ticks = 0
 
         if terminal.has_input():
             key = terminal.read()
-            handle_event(key)
+            manager.current_state.handle_input(convert_to_action(key))
 
         time.sleep(1 / FPS)
         ticks += 1
-
-
-def logic():
-    state.logic()
-
-
-def render():
-    state.render()
-
-
-def game_loop():
-    while running:
-        if state.wait_for_input:
-            state.logic()
-            state.render()
-            handle_event(terminal.read())
-        else:
-            automatic_loop()
 
 
 def start():
