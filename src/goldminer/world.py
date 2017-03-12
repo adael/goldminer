@@ -22,6 +22,7 @@ class World:
         )
         self.camera.update(self.player.x, self.player.y)
         self.stored_player_position = None
+        self.stop_gathering = False
 
     def inside_map(self, x, y):
         return self.world_map.inside_map(x, y)
@@ -46,9 +47,14 @@ class World:
             actor.move(x, y)
 
     def player_move(self, x, y):
+        
+        if self.player.resting:
+            return
+        
         (dx, dy) = self.player.x + x, self.player.y + y
 
         if self.is_walkable(dx, dy):
+            self.stop_gathering = False
             self.player.move(x, y)
             return
 
@@ -56,8 +62,8 @@ class World:
         if tile.door:
             self.player_handle_door(tile, dx, dy)
             return
-
-        if tile.resource:
+        
+        if tile.resource and not self.stop_gathering:
             self.player_gather_resource(tile, dx, dy)
             return
 
@@ -73,6 +79,7 @@ class World:
     def player_gather_resource(self, tile, dx, dy):
         if self.player.inventory.is_full:
             self.player.think(texts.inventory_is_full)
+            self.stop_gathering = True
             return
 
         tile.resource.health -= 1

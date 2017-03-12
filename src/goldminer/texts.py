@@ -1,3 +1,10 @@
+import random
+
+
+def pick(msg):
+    return random.choice(msg) if isinstance(msg, list) else msg
+
+
 im_back = [
     "I'm back!"
 ]
@@ -36,10 +43,7 @@ im_muted = [
     "I cannot open my mouth!",
 ]
 
-inventory_is_empty = [
-    "You have no items",
-    "The inventory is empty"
-]
+inventory_is_empty = "The inventory is empty"
 
 inventory_is_full = [
     "Not enough room for this",
@@ -47,3 +51,5 @@ inventory_is_full = [
     "No, my inventory it's full",
     "Heck, I need bigger bags"
 ]
+
+press_back = "Press back"

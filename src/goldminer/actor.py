@@ -176,7 +176,7 @@ class Inventory:
 
     @property
     def is_empty(self):
-        return False if self.items else True
+        return len(self.items) == 0
 
     def count(self):
         return len(self.items)
@@ -189,6 +189,9 @@ class Inventory:
 
     def add(self, item):
         self.items.append(item)
+        
+    def drop(self, item):
+        self.items.remove(item)
 
 
 class History:

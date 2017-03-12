@@ -10,6 +10,7 @@ class Item:
 
 
 stone_flint = Item("*", "gray", "A flint stone")
+
 stone_chert = Item("*", colors.steelblue, "A gray chert rock")
 stone_jasper = Item("*", colors.darksalmon, "A red jasper rock")
 stone_chalcedony = Item("*", colors.skyblue, "A sky-blue chalcedony rock")

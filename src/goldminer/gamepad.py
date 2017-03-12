@@ -12,8 +12,8 @@ class GamePad(Enum):
     right = 6
     a = 10
     b = 11
-    x = 12
-    z = 13
+    c = 12
+    d = 13
     lb = 14
     rb = 15
 
@@ -30,12 +30,12 @@ class GamePadAction:
         self.is_right = self.action == GamePad.right
         self.is_a = self.action == GamePad.a
         self.is_b = self.action == GamePad.b
-        self.is_x = self.action == GamePad.x
-        self.is_z = self.action == GamePad.z
+        self.is_c = self.action == GamePad.c
+        self.is_d = self.action == GamePad.d
         self.is_lb = self.action == GamePad.lb
         self.is_rb = self.action == GamePad.rb
         self.is_movement = self.action in (GamePad.up, GamePad.down, GamePad.left, GamePad.right)
-
+    
     @property
     def movement(self):
         if self.is_up:
@@ -57,17 +57,17 @@ def key_to_action(key):
         return GamePad.left
     elif key in (terminal.TK_RIGHT, terminal.TK_KP_6):
         return GamePad.right
-    elif key in (terminal.TK_A, terminal.TK_SPACE):
+    elif key in (terminal.TK_A,):
         return GamePad.a
     elif key in (terminal.TK_S,):
         return GamePad.b
-    elif key in (terminal.TK_Z,):
-        return GamePad.z
     elif key in (terminal.TK_X,):
-        return GamePad.x
-    elif key in (terminal.TK_I,):
+        return GamePad.c
+    elif key in (terminal.TK_Z,):
+        return GamePad.d
+    elif key in (terminal.TK_Q,):
         return GamePad.lb
-    elif key in (terminal.TK_G, terminal.TK_P):
+    elif key in (terminal.TK_E,):
         return GamePad.rb
     elif key in (terminal.TK_ENTER, terminal.TK_KP_ENTER):
         return GamePad.select

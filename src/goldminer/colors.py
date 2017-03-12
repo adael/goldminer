@@ -1675,7 +1675,9 @@ oakbrown = "#806517"
 platinum = "#E5E4E2"
 
 # Picked colors
-inventory_color = darkslategray
+inventory_item_hover_bg = darkslategray
+inventory_item_hover_fg = white
+inventory_item_fg = white
 inventory_bk_color = night
 
 

@@ -2,6 +2,8 @@ from bearlibterminal import terminal
 
 from goldminer.geom import Rect
 
+music = False
+
 # MAP SETTINGS
 default_world_width = 60
 default_world_height = 40
