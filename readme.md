@@ -18,7 +18,7 @@ The awesome BearLibTerminal http://foo.wyrd.name/en:bearlibterminal
 
 # Install
 
-You should use python 3. I didn't test it with python 2
+You should use python 3. I didn't tested it with python 2
 
     git clone git@github.com:adael/goldminer.git
     pip3 install bearlibterminal
@@ -27,11 +27,9 @@ You should use python 3. I didn't test it with python 2
     
 # Screenshots
 
-![ingame screenshot]
-(https://i.imgsafe.org/1eb6415a79.png)
+![ingame screenshot](https://i.imgsafe.org/1eb6415a79.png)
 
-![inventory selection]
-(https://i.imgsafe.org/1eb651012e.png)
+![inventory selection](https://i.imgsafe.org/1eb651012e.png)
 
 # Credits and acknowledgments
 
