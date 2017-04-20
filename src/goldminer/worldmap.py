@@ -61,6 +61,10 @@ class Door:
         self.closed = closed
         self.leave = leave
     
+    @property
+    def opened(self):
+        return not self.closed
+    
     def open(self):
         self.closed = False
     

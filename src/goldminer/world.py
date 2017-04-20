@@ -24,7 +24,6 @@ class World:
         )
         self.camera.update(self.player.x, self.player.y)
         self.stored_player_position = None
-        self.stop_gathering = False
     
     def inside_map(self, x, y):
         return self.world_map.inside_map(x, y)
@@ -45,6 +44,7 @@ class World:
     
     def actor_move(self, actor, x, y):
         (dx, dy) = actor.x + x, actor.y + y
+        
         if self.is_walkable(dx, dy):
             actor.move(x, y)
     
@@ -58,7 +58,6 @@ class World:
         self.player.orientation = (x, y)
         
         if self.is_walkable(dx, dy):
-            self.stop_gathering = False
             self.player.move(x, y)
             # Currently computes fov in each logic update
             # self.compute_fov()
@@ -66,33 +65,35 @@ class World:
         
         tile = self.tile(dx, dy)
         if tile.door:
-            self.player.see("A door")
-            self.player_handle_door(tile, dx, dy)
-            return
+            if tile.door.opened:
+                if tile.door.leave:
+                    self.leave_room()
+                else:
+                    self.enter_room(dx, dy)
+            else:
+                self.player.see("{0} ({1})".format("a door", "closed" if tile.door.closed else "opened"))
         
-        if tile.resource:
+        elif tile.resource:
             self.player.see("{0} ({1})".format(tile.resource.item.description, tile.resource.quantity))
     
-    def player_gather(self):
+    def player_primary_action(self):
         (x, y) = self.player.looking_position()
         tile = self.tile(x, y)
-        if tile.resource and not self.stop_gathering:
+        if tile.resource:
             self.player_gather_resource(tile)
-            return
+        elif tile.door:
+            self.player_handle_door(tile, x, y)
     
     def player_handle_door(self, tile, dx, dy):
         if tile.door.closed:
             tile.door.open()
         else:
-            if tile.door.leave:
-                self.leave_room()
-            else:
-                self.enter_room(dx, dy)
+            tile.door.close()
     
     def player_gather_resource(self, tile):
+        
         if self.player.inventory.is_full:
             self.player.think(texts.inventory_is_full)
-            self.stop_gathering = True
             return
         
         sound.pick_axe.play()
@@ -108,6 +109,7 @@ class World:
                 tile.resource.restore_health()
         
         if tile.resource.depleted:
+            self.player.think("This resource is depleted")
             tile.resource = None
     
     def actor_heal(self, actor, amount):
@@ -149,5 +151,3 @@ class World:
                 tile = self.tile(x, y)
                 dist = self.player.distance(x, y)
                 tile.in_sight = dist < 4
-
-

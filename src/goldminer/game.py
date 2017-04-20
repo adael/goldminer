@@ -73,6 +73,7 @@ def end_game():
 
 
 def convert_to_action(key):
+            
     if key == terminal.TK_RESIZED:
         settings.update()
     elif key == terminal.TK_CLOSE:
@@ -93,7 +94,7 @@ def game_loop():
 
 def automatic_loop():
     ticks = 0
-    while manager.current_state.automatic_mode:
+    while manager.current_state and manager.current_state.automatic_mode:
         if ticks % FPS == 0:
             manager.current_state.logic()
             manager.current_state.render()

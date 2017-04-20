@@ -138,7 +138,7 @@ class PlayingState(GameState):
                 (x, y) = action.movement
                 self.world.player_move(x, y)
             elif action.is_a:
-                self.world.player_gather()
+                self.world.player_primary_action()
     
     def logic(self):
         self.world.logic()

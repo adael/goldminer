@@ -3,7 +3,6 @@ import random
 from datetime import datetime
 
 from goldminer import texts
-from goldminer.geom import orientation
 
 
 class Actor:
@@ -59,7 +58,6 @@ class Actor:
             (dx, dy) = self.orientation
             x += dx
             y += dy
-        print(x, y)
         return x, y
     
     def heal(self, amount):
