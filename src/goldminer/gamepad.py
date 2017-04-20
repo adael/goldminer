@@ -61,13 +61,13 @@ def key_to_action(key):
         return GamePad.a
     elif key in (terminal.TK_S,):
         return GamePad.b
-    elif key in (terminal.TK_X,):
+    elif key in (terminal.TK_D,):
         return GamePad.c
     elif key in (terminal.TK_Z,):
         return GamePad.d
-    elif key in (terminal.TK_Q,):
+    elif key in (terminal.TK_X,):
         return GamePad.lb
-    elif key in (terminal.TK_E,):
+    elif key in (terminal.TK_C,):
         return GamePad.rb
     elif key in (terminal.TK_ENTER, terminal.TK_KP_ENTER):
         return GamePad.select

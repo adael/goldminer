@@ -24,3 +24,7 @@ I would give thanks to:
 
 - Codeface font directory
   https://github.com/chrissimpkins/codeface
+
+- pyglet and avbin
+  https://bitbucket.org/pyglet/pyglet/wiki/Home
+  http://avbin.github.io/AVbin/Home/Home.html

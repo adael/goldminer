@@ -5,8 +5,9 @@ import random
 from goldminer import settings, texts, colors, items
 from goldminer.actor import Actor, Fighter, Inventory, History
 from goldminer.geom import Rect, Direction
-from goldminer.resources import Resource
-from goldminer.world import Tile, WorldMap, World, Door
+from goldminer.items import Resource
+from goldminer.world import World
+from goldminer.worldmap import WorldMap, Tile, Door
 
 house_density = 18
 
@@ -146,6 +147,7 @@ class WorldGenerator:
             color = colors.slategray
         tile = self.world_map.tile(x, y)
         tile.walkable = False
+        tile.explored = True
         tile.char = "#"
         tile.color = color
 
@@ -154,8 +156,11 @@ class WorldGenerator:
             tile = self.world_map.tile(x, y)
             if tile.walkable and not tile.resource:
                 item = copy.copy(self.rng.choice(items.stones))
-                tile.resource = Resource(item.char, item.color, item=item,
-                                         quantity=random.randint(0, 10), health=random.randint(50, 200))
+                tile.resource = Resource(item.char, item.color,
+                                         item=item,
+                                         quantity=random.randint(1, 10),
+                                         health=random.randint(5, 15),
+                                         hardness=5)
 
     def put_trees(self):
         for coord in self.random_tile_groups(10, 10):

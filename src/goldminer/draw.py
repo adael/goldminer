@@ -1,9 +1,10 @@
 from bearlibterminal import terminal
 
 from goldminer import settings, texts, colors
-from goldminer.actor import Inventory, History
+from goldminer.actor import Inventory, History, Actor
 from goldminer.geom import Rect
 from goldminer.items import Item
+from goldminer.worldmap import Tile
 
 
 class Border:
@@ -159,6 +160,15 @@ def calculate_select_box_dimension(ctrl):
     return w, h
 
 
+# GenerateWorldState
+def draw_generate_world():
+    terminal.color(colors.black)
+    terminal.bkcolor(colors.white_ice)
+    terminal.clear()
+    
+    terminal.print_(10, 10, "Generating world...")
+
+
 # PlayingState
 
 def draw_game_layout():
@@ -197,44 +207,66 @@ def draw_world_actors(camera, actors):
 def draw_world_player(camera, player):
     x, y = camera.map_to_camera(player.x, player.y)
     draw_player(player, x, y)
+    if player.orientation:
+        push_colors()
+        (px, py) = camera.map_to_camera(*player.looking_position())
+        terminal.color(terminal.pick_color(px, py))
+        terminal.bkcolor("#222222")
+        terminal.put(px, py, terminal.pick(px, py))
+        pop_colors()
 
 
 def draw_tile(tile, x, y):
+    color = None
+    
+    if not tile.in_sight:
+        if tile.explored:
+            color = colors.not_in_sight
+        else:
+            return
+    
     if tile.door:
-        draw_door(tile.door, x, y)
+        draw_door(tile.door, x, y, color=color)
     elif tile.resource:
-        draw_resource(tile.resource, x, y)
+        draw_resource(tile.resource, x, y, color=color)
     elif tile.chest:
-        draw_chest(tile.chest, x, y)
+        draw_chest(tile.chest, x, y, color=color)
     else:
-        draw_entity(tile, x, y)
+        draw_entity(tile, x, y, color=color)
 
 
-def draw_door(door, x, y):
+def draw_door(door, x, y, color=None):
     char = "+" if door.closed else "/"
-    terminal.color(door.color)
-    terminal.put(x, y, char)
+    draw_entity(door, x, y, color=color, char=char)
 
 
-def draw_resource(resource, x, y):
-    draw_entity(resource, x, y)
+def draw_resource(resource, x, y, color=None):
+    draw_entity(resource, x, y, color=color)
 
 
-def draw_actor(actor, x, y):
-    draw_entity(actor, x, y)
+def draw_actor(actor, x, y, color=None):
+    draw_entity(actor, x, y, color=color)
 
 
-def draw_player(player, x, y):
+def draw_player(player: Actor, x, y):
     draw_entity(player, x, y)
 
 
-def draw_chest(chest, x, y):
-    draw_entity(chest, x, y)
+def draw_chest(chest, x, y, color=None):
+    draw_entity(chest, x, y, color=color)
 
 
-def draw_entity(entity, x, y):
-    terminal.color(entity.color)
-    terminal.put(x, y, entity.char)
+def draw_entity(entity, x, y, char=None, color=None):
+    if char is None:
+        char = entity.char
+    if color is None:
+        color = entity.color
+    draw_char(x, y, char, color)
+
+
+def draw_char(x, y, char, color):
+    terminal.color(color)
+    terminal.put(x, y, char)
 
 
 def draw_actor_stats(actor):

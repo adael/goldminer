@@ -1,0 +1,7 @@
+For enable music I have to:
+ - download avbin dll and put inside the working folder
+ - put some songs in the musig foolder
+
+Avbin is part of pyglet
+
+Avbin: http://avbin.github.io/AVbin/Home/Home.html

@@ -5,8 +5,10 @@ from goldminer.actor import Inventory
 from goldminer.gamepad import GamePadAction
 from goldminer.ui import SelectBox, SelectItem, Separator
 
+random.seed(1234)
+
+
 class GameState:
-    
     def __init__(self):
         self.automatic_mode = False
     
@@ -22,7 +24,7 @@ class GameState:
     def render(self):
         pass
     
-    def handle_input(self, action):
+    def handle_input(self, action: GamePadAction):
         pass
 
 
@@ -35,7 +37,7 @@ class StateManager:
         if self.states:
             return self.states[-1]
     
-    def enter_state(self, state):
+    def enter_state(self, state: GameState):
         self.states.append(state)
         state.enter()
     
@@ -64,7 +66,7 @@ class MenuState(GameState):
             SelectItem("Options"),
             SelectItem("Quit Game"),
         ])
-        
+    
     def handle_input(self, action: GamePadAction):
         if action.is_back:
             if game.can_continue():
@@ -104,10 +106,19 @@ class MenuState(GameState):
                 game.end_game()
 
 
+class GenerateWorldState(GameState):
+    def __init__(self):
+        super().__init__()
+        self.generating = False
+    
+    def render(self):
+        draw.draw_generate_world()
+        pass
+
+
 class PlayingState(GameState):
     def __init__(self):
         super().__init__()
-        random.seed(1234)
         self.worlds = []
         self.show_inventory = False
     
@@ -115,7 +126,7 @@ class PlayingState(GameState):
     def world(self):
         return self.worlds[-1]
     
-    def handle_input(self, action):
+    def handle_input(self, action: GamePadAction):
         if action.is_back:
             game.show_menu()
             return
@@ -126,9 +137,12 @@ class PlayingState(GameState):
             elif action.is_movement:
                 (x, y) = action.movement
                 self.world.player_move(x, y)
+            elif action.is_a:
+                self.world.player_gather()
     
     def logic(self):
         self.world.logic()
+        self.world.compute_fov()
         self.automatic_mode = self.world.player.resting
     
     def render(self):
@@ -200,7 +214,6 @@ class InventoryState(GameState):
 
 
 class ViewItemState(GameState):
-
     def __init__(self, inventory, item):
         super().__init__()
         self.inventory = inventory
@@ -217,7 +230,7 @@ class ViewItemState(GameState):
             SelectItem("Deconstruct", active=False),
             SelectItem("Throw", active=False),
         ])
-
+    
     def enter(self):
         self.selected_action = None
         pass

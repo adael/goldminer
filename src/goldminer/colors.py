@@ -1675,6 +1675,7 @@ oakbrown = "#806517"
 platinum = "#E5E4E2"
 
 # Picked colors
+not_in_sight="#333333"
 inventory_item_hover_bg = darkslategray
 inventory_item_hover_fg = white
 inventory_item_fg = white
@@ -1684,3 +1685,12 @@ inventory_bk_color = night
 def get_bright_range(color):
     return ["darkest " + color, "darker " + color, "dark " + color,
             color, "light " + color, "lighter " + color, "lightest " + color]
+
+
+def name_from_color(c):
+    # a = (c >> 32) & 0xFF
+    r = (c >> 16) & 0xFF
+    g = (c >> 8) & 0xFF
+    b = c & 0xFF
+    return '#%02x%02x%02x' % (r, g, b)
+
