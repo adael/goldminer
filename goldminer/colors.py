@@ -1674,6 +1674,10 @@ night = "#0C090A"
 oakbrown = "#806517"
 platinum = "#E5E4E2"
 
+# Furniture
+doors = "red"
+chests = "brown"
+
 # Picked colors
 not_in_sight="#333333"
 inventory_item_hover_bg = darkslategray

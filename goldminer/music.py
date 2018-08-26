@@ -1,22 +1,25 @@
 import pyglet
-from goldminer import settings
+from goldminer import assets
 
+mediaplayer = None
 
-if settings.music:
-    song = pyglet.media.load("res/music/song1.mp3")
+def init():
+    song = pyglet.media.load(assets.songs[0])
     looper = pyglet.media.SourceGroup(song.audio_format, None)
     looper.loop = True
     looper.queue(song)
-    
+
     mediaplayer = pyglet.media.Player()
     mediaplayer.queue(looper)
 
 
 def play():
-    if settings.music:
-        mediaplayer.play()
-    
-    
+    if not mediaplayer:
+        init()
+
+    mediaplayer.play()
+
+
 def stop():
-    if settings.music:
+    if mediaplayer:
         mediaplayer.pause()

@@ -1,14 +1,12 @@
 import time
-
 from bearlibterminal import terminal
-
-from goldminer import settings, filesave
+from goldminer import settings, filesave, assets
 from goldminer.gamepad import GamePadAction
 from goldminer.pgc import create_world
 from goldminer.states import PlayingState, MenuState, StateManager
 
 running = True
-FPS = 30
+FPS = 4
 manager = StateManager()
 running_states = {}
 
@@ -69,11 +67,11 @@ def save():
 
 
 def end_game():
-    manager.clear_states()
+    global running
+    running = False
 
 
 def convert_to_action(key):
-            
     if key == terminal.TK_RESIZED:
         settings.update()
     elif key == terminal.TK_CLOSE:
@@ -83,18 +81,22 @@ def convert_to_action(key):
 
 
 def game_loop():
-    while manager.current_state:
-        if manager.current_state.automatic_mode:
-            automatic_loop()
+    while running:
+
+        state = manager.current_state
+
+        if state.automatic_mode:
+            automatic_loop_mode()
         else:
-            manager.current_state.logic()
-            manager.current_state.render()
-            manager.current_state.handle_input(convert_to_action(terminal.read()))
+            state.logic()
+            state.render()
+            state.handle_input(convert_to_action(terminal.read()))
 
 
-def automatic_loop():
+def automatic_loop_mode():
     ticks = 0
     while manager.current_state and manager.current_state.automatic_mode:
+
         if ticks % FPS == 0:
             manager.current_state.logic()
             manager.current_state.render()
@@ -114,7 +116,7 @@ def start():
         size = "{}x{}".format(settings.initial_screen_width, settings.initial_screen_height)
         minimun_size = size
 
-        font = "res/proggy/ProggySquare.ttf"
+        font = assets.default_font
         font_size = 12
         # cell_size = "7x11"
         cell_size = "auto"
@@ -136,7 +138,5 @@ def start():
 
         show_menu()
         game_loop()
-
     finally:
-        print("Closing...")
         terminal.close()

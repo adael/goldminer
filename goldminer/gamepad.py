@@ -1,6 +1,32 @@
 from enum import Enum
-
 from bearlibterminal import terminal
+
+
+def key_to_action(key):
+    if key in (terminal.TK_UP, terminal.TK_KP_8):
+        return GamePad.up
+    elif key in (terminal.TK_DOWN, terminal.TK_KP_2):
+        return GamePad.down
+    elif key in (terminal.TK_LEFT, terminal.TK_KP_4):
+        return GamePad.left
+    elif key in (terminal.TK_RIGHT, terminal.TK_KP_6):
+        return GamePad.right
+    elif key == terminal.TK_A:
+        return GamePad.a
+    elif key in (terminal.TK_S,):
+        return GamePad.b
+    elif key in (terminal.TK_D,):
+        return GamePad.c
+    elif key in (terminal.TK_Z,):
+        return GamePad.d
+    elif key in (terminal.TK_X,):
+        return GamePad.lb
+    elif key in (terminal.TK_C,):
+        return GamePad.rb
+    elif key in (terminal.TK_ENTER, terminal.TK_KP_ENTER):
+        return GamePad.select
+    elif key in (terminal.TK_ESCAPE,):
+        return GamePad.back
 
 
 class GamePad(Enum):
@@ -35,7 +61,7 @@ class GamePadAction:
         self.is_lb = self.action == GamePad.lb
         self.is_rb = self.action == GamePad.rb
         self.is_movement = self.action in (GamePad.up, GamePad.down, GamePad.left, GamePad.right)
-    
+
     @property
     def movement(self):
         if self.is_up:
@@ -46,30 +72,3 @@ class GamePadAction:
             return -1, 0
         elif self.is_right:
             return 1, 0
-
-
-def key_to_action(key):
-    if key in (terminal.TK_UP, terminal.TK_KP_8):
-        return GamePad.up
-    elif key in (terminal.TK_DOWN, terminal.TK_KP_2):
-        return GamePad.down
-    elif key in (terminal.TK_LEFT, terminal.TK_KP_4):
-        return GamePad.left
-    elif key in (terminal.TK_RIGHT, terminal.TK_KP_6):
-        return GamePad.right
-    elif key == terminal.TK_A:
-        return GamePad.a
-    elif key in (terminal.TK_S,):
-        return GamePad.b
-    elif key in (terminal.TK_D,):
-        return GamePad.c
-    elif key in (terminal.TK_Z,):
-        return GamePad.d
-    elif key in (terminal.TK_X,):
-        return GamePad.lb
-    elif key in (terminal.TK_C,):
-        return GamePad.rb
-    elif key in (terminal.TK_ENTER, terminal.TK_KP_ENTER):
-        return GamePad.select
-    elif key in (terminal.TK_ESCAPE,):
-        return GamePad.back

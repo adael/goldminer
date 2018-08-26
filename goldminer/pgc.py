@@ -3,11 +3,17 @@ import math
 import random
 
 from goldminer import settings, texts, colors, items
-from goldminer.actor import Actor, Fighter, Inventory, History
+from goldminer.actor import Actor
+from goldminer.fighter import Fighter
+from goldminer.inventory import Inventory
+from goldminer.history import History
 from goldminer.geom import Rect, Direction
 from goldminer.items import Resource
 from goldminer.world import World
 from goldminer.worldmap import WorldMap, Tile, Door
+
+# todo: same seed for testing
+random.seed(1234)
 
 house_density = 18
 
@@ -93,7 +99,13 @@ def degrees_to_cross_xy(degrees):
 
 
 def create_floor_tiles(width, height):
-    return [[Tile(".", random.choice(settings.floor_colors)) for _ in range(height)] for _ in range(width)]
+    return [[create_floor_tile() for _ in range(height)] for _ in range(width)]
+
+
+def create_floor_tile():
+    tile = Tile(".", "gray")
+    tile.explored = True
+    return tile
 
 
 class WorldGenerator:
@@ -105,7 +117,7 @@ class WorldGenerator:
         self.make_floor()
         self.make_borders()
         # self.create_house(Rect(10, 10, 3, 3), 1, 0)
-        self.create_houses(house_density)
+        # self.create_houses(house_density)
         # self.generate_street_side(10, 10, 4, Direction.down, Direction.right)
         # self.generate_street_side(16, 10, 4, Direction.down, Direction.left)
         self.put_resources()
@@ -148,27 +160,35 @@ class WorldGenerator:
         tile = self.world_map.tile(x, y)
         tile.walkable = False
         tile.explored = True
-        tile.char = "#"
-        tile.color = color
+        tile.modify("#", color)
+
+    def make_tree(self):
+        item = copy.copy(items.wood_log)
+        return Resource("^", "green",
+                        item=item,
+                        quantity=self.rng.randint(1, 10),
+                        health=self.rng.randint(3, 12))
+
+    def make_stone(self):
+        item = copy.copy(self.rng.choice(items.stones))
+        return Resource(item.char, item.color,
+                        item=item,
+                        quantity=self.rng.randint(1, 10),
+                        health=self.rng.randint(5, 15),
+                        hardness=5)
 
     def put_resources(self):
         for x, y in self.random_tile_groups():
             tile = self.world_map.tile(x, y)
             if tile.walkable and not tile.resource:
-                item = copy.copy(self.rng.choice(items.stones))
-                tile.resource = Resource(item.char, item.color,
-                                         item=item,
-                                         quantity=random.randint(1, 10),
-                                         health=random.randint(5, 15),
-                                         hardness=5)
+                tile.resource = self.make_stone()
 
     def put_trees(self):
         for coord in self.random_tile_groups(10, 10):
             x, y = coord
             tile = self.world_map.tile(x, y)
             if tile.walkable and not tile.resource:
-                tile.resource = Resource("^", "dark green", random.randint(3, 12))
-                tile.resource.drop = copy.copy(items.wood_log)
+                tile.resource = self.make_tree()
 
     def random_tile_groups(self, max_groups=5, group_size=5):
         tile_coords = []

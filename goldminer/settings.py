@@ -1,6 +1,6 @@
 from bearlibterminal import terminal
-
 from goldminer.geom import Rect
+
 
 music = False
 

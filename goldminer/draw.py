@@ -1,7 +1,9 @@
 from bearlibterminal import terminal
 
 from goldminer import settings, texts, colors
-from goldminer.actor import Inventory, History, Actor
+from goldminer.actor import Actor
+from goldminer.inventory import Inventory
+from goldminer.history import History
 from goldminer.geom import Rect
 from goldminer.items import Item
 from goldminer.worldmap import Tile
@@ -57,7 +59,7 @@ def pop_colors():
 def color_for_value(value, colors=None):
     if not colors:
         colors = ["dark red", "red", "orange", "yellow", "dark green", "green"]
-    
+
     ncolors = len(colors) - 1
     percent = round(value * ncolors / 100, 0)
     index = int(min(ncolors, max(0, percent)))
@@ -91,11 +93,11 @@ def draw_box(x1, y1, x2, y2, border=double_border):
     for cx in range(x1, x2):
         terminal.put(cx, y1, border.top)
         terminal.put(cx, y2, border.bottom)
-    
+
     for cy in range(y1, y2):
         terminal.put(x1, cy, border.left)
         terminal.put(x2, cy, border.right)
-    
+
     terminal.put(x1, y1, border.topLeft)
     terminal.put(x2, y1, border.topRight)
     terminal.put(x2, y2, border.bottomRight)
@@ -124,7 +126,7 @@ def draw_select_box(control, x, y):
     padding_left = 2
     w, h = calculate_select_box_dimension(control)
     w += padding_left
-    
+
     index = 0
     py = 0
     for item in control.items:
@@ -133,7 +135,7 @@ def draw_select_box(control, x, y):
             color = colors.yellow
         elif not item.active:
             color = colors.gray
-        
+
         box = "[bbox={}]".format(w - padding_left)
         (_, height) = terminal.measure(box + item.label)
         terminal.color(color)
@@ -141,22 +143,22 @@ def draw_select_box(control, x, y):
         if index == control.item_focused_index:
             terminal.color(color)
             terminal.put(x, y + py, ">")
-        
+
         py += height
         index += 1
 
 
 def calculate_select_box_dimension(ctrl):
     w, h = 3, 3
-    
+
     for item in ctrl.items:
         w = max(len(item.label), w)
-    
+
     for item in ctrl.items:
         box = "[bbox={}]".format(w)
         (_, m) = terminal.measure(box + item.label)
         h = max(m, h)
-    
+
     return w, h
 
 
@@ -165,7 +167,7 @@ def draw_generate_world():
     terminal.color(colors.black)
     terminal.bkcolor(colors.white_ice)
     terminal.clear()
-    
+
     terminal.print_(10, 10, "Generating world...")
 
 
@@ -216,52 +218,27 @@ def draw_world_player(camera, player):
         pop_colors()
 
 
-def draw_tile(tile, x, y):
-    color = None
-    
-    if not tile.in_sight:
-        if tile.explored:
-            color = colors.not_in_sight
-        else:
-            return
-    
-    if tile.door:
-        draw_door(tile.door, x, y, color=color)
-    elif tile.resource:
-        draw_resource(tile.resource, x, y, color=color)
-    elif tile.chest:
-        draw_chest(tile.chest, x, y, color=color)
-    else:
-        draw_entity(tile, x, y, color=color)
+def draw_tile(tile: Tile, x, y):
+    if not tile.explored:
+        return
+
+    draw_char(x, y, tile.char, tile.color if tile.in_sight else colors.not_in_sight)
 
 
-def draw_door(door, x, y, color=None):
-    char = "+" if door.closed else "/"
-    draw_entity(door, x, y, color=color, char=char)
-
-
-def draw_resource(resource, x, y, color=None):
-    draw_entity(resource, x, y, color=color)
-
-
-def draw_actor(actor, x, y, color=None):
-    draw_entity(actor, x, y, color=color)
+def draw_actor(actor, x, y):
+    draw_entity(actor, x, y)
 
 
 def draw_player(player: Actor, x, y):
     draw_entity(player, x, y)
 
 
-def draw_chest(chest, x, y, color=None):
-    draw_entity(chest, x, y, color=color)
+def draw_chest(chest, x, y):
+    draw_entity(chest, x, y)
 
 
-def draw_entity(entity, x, y, char=None, color=None):
-    if char is None:
-        char = entity.char
-    if color is None:
-        color = entity.color
-    draw_char(x, y, char, color)
+def draw_entity(entity, x, y):
+    draw_char(x, y, entity.char, entity.color)
 
 
 def draw_char(x, y, char, color):
@@ -272,27 +249,27 @@ def draw_char(x, y, char, color):
 def draw_actor_stats(actor):
     r = settings.gui_rect
     terminal.color('azure')
-    
+
     draw_rect(r)
-    
+
     x = r.left + 2
     y = r.top + 2
     width = r.width - 4
-    
+
     draw_gui_stat(actor.fighter.hp, x, y, width, settings.hp_colors)
-    
+
     y += 3
     draw_gui_stat(actor.fighter.water, x, y, width, settings.water_colors)
-    
+
     y += 3
     draw_gui_stat(actor.fighter.food, x, y, width, settings.food_colors)
-    
+
     y += 3
     draw_gui_stat(actor.fighter.fatigue, x, y, width, colors.get_bright_range(colors.brown))
-    
+
     y += 3
     terminal.print_(x, y, "Position: {}x{}".format(actor.x, actor.y))
-    
+
     y += 4
     terminal.color("#AA6939")
     terminal.print_(x, y, "Inventory:")
@@ -313,7 +290,7 @@ def draw_mini_inventory(inventory: Inventory, x: int, y: int, width: int):
     items = ["[color={}]{} [/color]".format(item.color, item.char) for item in inventory.items]
     s = "".join(items)
     str_items = s + ("[color=#404040]· [/color]" * (inventory.capacity - len(items)))
-    
+
     terminal.print_(x, y, "[bbox={}]".format(width) + str_items)
 
 
@@ -353,19 +330,19 @@ def draw_menu_option_state(lst):
 
 def draw_inventory_window(inventory: Inventory, selected_index):
     draw_window(settings.gui_rect, "Inventory window", colors.inventory_item_hover_bg, colors.inventory_bk_color)
-    
-    if inventory.is_empty:
+
+    if inventory.is_empty():
         inner_width = settings.gui_rect.width - 2
-        
+
         px = settings.gui_rect.x + 4
         py = settings.gui_rect.y + 4
         msg = texts.pick(texts.inventory_is_empty)
-        
+
         terminal.print_(px, py, "[bbox={}][color={}]{}".format(inner_width, colors.teal, msg))
         terminal.print_(px, py + 2, "[bbox={}][color={}]<< {}".format(inner_width, colors.white, texts.press_back))
     else:
         draw_inventory_state_items(inventory.items, selected_index)
-    
+
     terminal.refresh()
 
 
@@ -376,40 +353,40 @@ def draw_inventory_state_items(items, selected_index):
     line_w = settings.gui_rect.width - 3
     item_w = 2
     item_h = 3
-    
+
     index = 0
     for item in items:
         text_x = line_x + 4
         text_y = line_y + 1
-        
+
         if index == selected_index:
             item_bg = colors.inventory_item_hover_bg
             item_fg = colors.inventory_item_hover_fg
         else:
             item_bg = colors.inventory_bk_color
             item_fg = colors.inventory_item_fg
-        
+
         label = "[bbox={}][color=white] {}[/color]".format(line_w, item.description)
         _, mh = terminal.measure(label)
         cy = mh
-        
+
         # draw icon
         terminal.bkcolor(colors.inventory_bk_color)
         terminal.color(colors.white)
         draw_corners(line_x, line_y, line_x + item_w, line_y + item_w)
         terminal.color(item.color)
         terminal.put(line_x + 1, line_y + 1, item.char)
-        
+
         # draw highlight
         terminal.bkcolor(item_bg)
         terminal.clear_area(text_x, line_y, line_w - 4, item_h)
-        
+
         # draw text
         terminal.print_(text_x, text_y, label)
-        
+
         # restore background color
         terminal.bkcolor(colors.black)
-        
+
         # calculations
         line_y += max(3, cy + 1)
         index += 1

@@ -1,9 +1,13 @@
 <groups>
+  <group name="potion">
+    <effects>
+        <effect class="RestoreThirstEffect" on="drink" amount="5" />
+    </effects>
+  </group>
+</groups>
+<groups>
     <group char="!" description="A portable water skin">
 
-        <effects>
-            <effect class="RestoreThirstEffect" on="drink" amount="5" />
-        </effects>
 
         <items>
             <item name="Small waterskin"
@@ -16,18 +20,14 @@
 
             <item name="Big waterskin"
                   uses="10"
-                  color="dark azure" />
-                      description="A portable water skin"
+                  color="dark azure"
+                  description="A portable water skin" />
         </items>
-
     </group>
-
     <group char="*" description="Unknown resource">
-
         <items>
             <item name="Gray solid stone" color="slate" />
             <item name="Yellow gold-like solid" color="yellow" />
         </items>
-
     </group>
 </groups>
