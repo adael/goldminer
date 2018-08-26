@@ -70,9 +70,9 @@ class World:
                 else:
                     self.enter_room(dx, dy)
             else:
-                self.player.see("{0} ({1})".format("a door", "closed" if tile.door.closed else "opened"))
+                self.player.sees("{0} ({1})".format("a door", "closed" if tile.door.closed else "opened"))
         elif tile.resource:
-            self.player.see("{0} ({1})".format(tile.resource.item.description, tile.resource.quantity))
+            self.player.sees("{0} ({1})".format(tile.resource.item.description, tile.resource.quantity))
 
     def player_primary_action(self):
         (x, y) = self.player.looking_position()
@@ -91,7 +91,7 @@ class World:
     def player_gather_resource(self, tile):
 
         if self.player.inventory.is_full():
-            self.player.think(texts.inventory_is_full)
+            self.player.thinks(texts.inventory_is_full)
             return
 
         sound.pick_axe.play()
@@ -107,7 +107,7 @@ class World:
                 tile.resource.restore_health()
 
         if tile.resource.depleted:
-            self.player.think("This resource is depleted")
+            self.player.sees("This resource is depleted")
             tile.resource = None
 
     def actor_heal(self, actor, amount):
@@ -119,7 +119,7 @@ class World:
 
     def logic(self):
         if self.player.resting:
-            self.player.think("Zzz ...")
+            self.player.thinks("Zzz ...")
             self.player.restore()
         self.camera.update(self.player.x, self.player.y)
 

@@ -65,7 +65,7 @@ def create_world():
     world_generator.generate_complete_world()
     player = create_player()
     world = World(world_map, player, seed)
-    player.think(texts.im_back)
+    player.thinks(texts.im_back)
     return world
 
 

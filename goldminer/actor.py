@@ -17,10 +17,6 @@ class Actor:
         self.inventory = None
         self.history = None
 
-        self.dead = False
-        self.deaf = False
-        self.mute = False
-        self.blind = False
         self.resting = False
 
     @property
@@ -79,54 +75,18 @@ class Actor:
         return self.fighter and other.fighter
 
     def attack(self, other):
-        if self.fighter and other.fighter:
+        if self.can_attack(other):
             self.fighter.attack(other.figther)
 
-    def can_talk(self):
-        return not self.mute
-
-    def say(self, text, probability=1.0):
-        if self.can_talk():
-            if random.random() <= probability:
-                self.history.write_self(self, "say", text)
-                self.world.actor_say(self, text)
-        else:
-            self.think(texts.im_muted)
-
-    def think(self, text, probability=1.0):
-        if random.random() <= probability:
-            self.history.write(text, self.color)
-
-    # senses
-    def can_ear(self):
-        return not self.deaf
-
-    def can_see(self):
-        return not self.blind
-
-    def see(self, text):
-        if self.can_see():
-            self.history.write_self(self, "see", text)
-
-    def ear(self, text):
-        if self.can_ear():
-            self.history.write_self(self, "hear", text)
-
-    def listen(self, text):
-        if self.can_ear():
-            self.history.write_self(self, "listen", text)
-
-    def feel(self, feeling):
-        self.history.write_self(self, "feel", feeling)
 
     def drop_item(self, item):
         try:
             self.world.place_item(self.x, self.y, item)
             self.inventory.drop(item)
         except TileBlockedException:
-            self.think("I cannot place anything here, it's blocked")
+            self.thinks("I cannot place anything here, it's blocked")
         except OutOfBoundsException:
-            self.think("I cannot place anything here, it's in the outside world")
+            self.thinks("I cannot place anything here, it's in the outside world")
 
     def current_tile(self):
         return self.world.tile(self.x, self.y)

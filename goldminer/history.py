@@ -37,4 +37,3 @@ class History:
 
     def trim(self):
         del self.messages[:-100]
-

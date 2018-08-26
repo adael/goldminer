@@ -29,24 +29,24 @@ class Fighter:
         self.food.value -= amount / 10000
 
         if self.fatigue.value <= 0:
-            self.owner.think(texts.im_losing_consciousness)
+            self.owner.thinks(texts.im_losing_consciousness)
             self.owner.resting = True
             return
 
         if self.fatigue.value < 4:
-            self.owner.think(texts.im_tired, 0.015)
+            self.owner.thinks(texts.im_tired, 0.015)
 
         if self.water.value < 4:
-            self.owner.think(texts.im_thirsty, 0.015)
+            self.owner.thinks(texts.im_thirsty, 0.015)
 
         if self.food.value < 2:
-            self.owner.think(texts.im_hungry, 0.005)
+            self.owner.thinks(texts.im_hungry, 0.005)
 
     def restore(self, amount=1):
         self.fatigue.value += amount / 10
         if self.fatigue.value > .25 and random.random() <= 0.01 + self.fatigue.value:
             self.owner.resting = False
-            self.owner.think(texts.im_wake_up)
+            self.owner.thinks(texts.im_wake_up)
 
     def attack(self, other):
         if other.defense < self.damage:
