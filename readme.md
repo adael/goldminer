@@ -24,12 +24,7 @@ You should use python 3. I didn't tested it with python 2
     pip3 install bearlibterminal
     cd goldminer
     python3 src/main.py
-    
-# Screenshots
-
-![ingame screenshot](https://i.imgsafe.org/1eb6415a79.png)
-
-![inventory selection](https://i.imgsafe.org/1eb651012e.png)
+   
 
 # Credits and acknowledgments
 
