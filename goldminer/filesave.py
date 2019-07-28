@@ -1,7 +1,8 @@
 import os
 import pickle
+from pathlib import Path
 
-filename = ".goldminer.pkl"
+filename = Path.home().joinpath(".goldminer.pkl")
 
 
 def save_world(world):
