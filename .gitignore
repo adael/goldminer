@@ -3,3 +3,4 @@
 *.pyc
 # save file
 .goldminer.pkl
+venv/

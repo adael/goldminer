@@ -1,1 +1,2 @@
 bearlibterminal==0.15.7
+pyglet==1.4.1
