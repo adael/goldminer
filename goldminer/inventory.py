@@ -1,5 +1,5 @@
 class Inventory:
-    def __init__(self, owner, capacity=4):
+    def __init__(self, owner, capacity=40):
         self.owner = owner
         self.capacity = capacity
         self.items = []

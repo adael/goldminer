@@ -1,4 +1,4 @@
-from goldminer import game, draw, music, settings
+from goldminer import game, draw, audio
 from goldminer.inventory import Inventory
 from goldminer.gamepad import GamePadAction
 from goldminer.ui import SelectBox, SelectItem, Separator
@@ -54,7 +54,7 @@ class StateManager:
 class MenuState(GameState):
     def __init__(self):
         super().__init__()
-        self.lst = SelectBox([
+        self.select_box = SelectBox([
             SelectItem("Continue", active=game.can_continue()),
             SelectItem("New Game"),
             SelectItem("", active=False),
@@ -69,25 +69,25 @@ class MenuState(GameState):
             else:
                 game.end_game()
         else:
-            self.lst.handle_input(action)
+            self.select_box.handle_input(action)
 
         self.check_selected_item()
 
     def enter(self):
-        if settings.music:
-            music.play()
-        self.lst.items[0].active = game.can_continue()
-        # self.lst.items[1].active = not game.can_continue()
+        if not audio.playing:
+            audio.play_music()
+        self.select_box.items[0].active = game.can_continue()
+        # self.select_box.items[1].active = not game.can_continue()
 
     def leave(self):
-        music.stop()
+        music.stop_music()
 
     def render(self):
-        draw.draw_menu_state(self.lst)
+        draw.draw_menu_state(self.select_box)
 
     def check_selected_item(self):
-        if self.lst.is_selected():
-            item = self.lst.item_selected()
+        if self.select_box.is_selected():
+            item = self.select_box.item_selected()
             if item.label == "Continue":
                 game.load_previous_game()
                 game.show_game()
@@ -156,7 +156,7 @@ class PlayingState(GameState):
 class MenuOptionsState(GameState):
     def __init__(self):
         super().__init__()
-        self.lst = SelectBox([
+        self.select_box = SelectBox([
             SelectItem("Normal"),
             SelectItem("Big"),
             SelectItem("Bigger"),
@@ -166,10 +166,10 @@ class MenuOptionsState(GameState):
         if action.is_back:
             game.show_menu()
         else:
-            self.lst.handle_input(action)
+            self.select_box.handle_input(action)
 
     def render(self):
-        draw.draw_menu_option_state(self.lst)
+        draw.draw_menu_option_state(self.select_box)
 
 
 class InventoryState(GameState):
@@ -215,7 +215,7 @@ class ViewItemState(GameState):
         self.inventory = inventory
         self.item = item
         self.selected_action = None
-        self.lst = SelectBox([
+        self.select_box = SelectBox([
             SelectItem("Examine"),
             SelectItem("Study"),
             SelectItem("Drop"),
@@ -235,17 +235,17 @@ class ViewItemState(GameState):
         if action.is_back:
             game.leave_state()
         else:
-            self.lst.handle_input(action)
+            self.select_box.handle_input(action)
 
     def logic(self):
         self.check_selected_item()
 
     def render(self):
-        draw.draw_view_item_window(self.lst, self.item)
+        draw.draw_view_item_window(self.select_box, self.item)
 
     def check_selected_item(self):
-        if self.lst.is_selected():
-            item = self.lst.item_selected()
+        if self.select_box.is_selected():
+            item = self.select_box.item_selected()
             if item.label == "Examine":
                 pass
             elif item.label == "Study":

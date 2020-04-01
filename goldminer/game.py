@@ -10,7 +10,6 @@ FPS = 4
 manager = StateManager()
 running_states = {}
 
-
 def can_continue():
     return game_started() or filesave.can_load()
 
@@ -82,21 +81,16 @@ def convert_to_action(key):
 
 def game_loop():
     while running:
-
         state = manager.current_state
-
         if state.automatic_mode:
-            automatic_loop_mode()
+            automatic_loop(state)
         else:
-            state.logic()
-            state.render()
-            state.handle_input(convert_to_action(terminal.read()))
+            manual_loop(state)
 
 
-def automatic_loop_mode():
+def automatic_loop(state):
     ticks = 0
-    while manager.current_state and manager.current_state.automatic_mode:
-
+    while state.automatic_mode:
         if ticks % FPS == 0:
             manager.current_state.logic()
             manager.current_state.render()
@@ -110,13 +104,19 @@ def automatic_loop_mode():
         ticks += 1
 
 
+def manual_loop(state):
+    state.logic()
+    state.render()
+    state.handle_input(convert_to_action(terminal.read()))
+
+
 def start():
     try:
         title = "Gold Miner"
         size = "{}x{}".format(settings.initial_screen_width, settings.initial_screen_height)
         minimun_size = size
 
-        font = assets.default_font
+        font = assets.font_default
         font_size = 12
         # cell_size = "7x11"
         cell_size = "auto"

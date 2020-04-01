@@ -1,2 +1,2 @@
 bearlibterminal==0.15.7
-pyglet==1.4.1
+pydub==0.23.1

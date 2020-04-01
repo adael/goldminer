@@ -1,5 +1,5 @@
 import random
-from goldminer import settings, pgc, game, geom, texts, sound
+from goldminer import settings, pgc, game, geom, texts, audio
 from goldminer.camera import Camera
 from goldminer.actor import Actor
 from goldminer.worldmap import WorldMap
@@ -94,7 +94,8 @@ class World:
             self.player.think(texts.inventory_is_full)
             return
 
-        sound.pick_axe.play()
+        audio.pick_axe.play()
+
         tile.resource.health -= 1
         self.player.waste(tile.resource.hardness)
 

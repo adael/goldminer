@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd $(dirname "${BASH_SOURCE[0]}")
-python3 main.py
+/usr/bin/env python main.py

@@ -1,3 +1,12 @@
-default_font = "assets/proggy/ProggySquare.ttf"
-songs = ["assets/music/song1.mp3"]
-snd_pickaxe = 'assets/sound/actions/61307__mv4824__pick-axe.wav'
+import glob
+# fonts
+font_default = "assets/proggy/ProggySquare.ttf"
+
+# songs
+songs = glob.glob("assets/music/*.mp3")
+
+# waves
+wav_pickaxe = 'assets/sound/actions/61307__mv4824__pick-axe.wav'
+
+
+# mp3s

@@ -1,5 +1,5 @@
+from math import ceil
 from bearlibterminal import terminal
-
 from goldminer import settings, texts, colors
 from goldminer.actor import Actor
 from goldminer.inventory import Inventory
@@ -7,6 +7,7 @@ from goldminer.history import History
 from goldminer.geom import Rect
 from goldminer.items import Item
 from goldminer.worldmap import Tile
+from goldminer.util import chunks
 
 
 class Border:
@@ -44,6 +45,7 @@ single_border = Border(
     bottomLeft=0x2514,
     bottomRight=0x2518
 )
+
 
 
 def push_colors():
@@ -288,10 +290,15 @@ def draw_mini_inventory(inventory: Inventory, x: int, y: int, width: int):
     It draws the in-game mini-inventory
     """
     items = ["[color={}]{} [/color]".format(item.color, item.char) for item in inventory.items]
-    s = "".join(items)
-    str_items = s + ("[color=#404040]· [/color]" * (inventory.capacity - len(items)))
 
-    terminal.print_(x, y, "[bbox={}]".format(width) + str_items)
+    while len(items) < inventory.capacity:
+        items.append("[color=#404040]- [/color]")
+
+    lines = chunks(items, ceil(width/2))
+
+    for line_items in lines:
+        terminal.print_(x, y, "[bbox={}]".format(width) + "".join(line_items))
+        y += 1
 
 
 def draw_history(history: History):
